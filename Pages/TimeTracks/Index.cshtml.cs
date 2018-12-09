@@ -22,7 +22,10 @@ namespace TimeTracking.Pages.TimeTracks
 
         public async Task OnGetAsync()
         {
-            TimeTrack = await _context.TimeTrack.ToListAsync();
+            TimeTrack = await _context.TimeTrack
+                            .Include(c => c.Issue)
+                            .AsNoTracking()
+                            .ToListAsync();
         }
     }
 }

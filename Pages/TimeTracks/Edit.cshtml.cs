@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,13 +11,12 @@ using TimeTracking.Models;
 
 namespace TimeTracking.Pages.TimeTracks
 {
-    public class EditModel : PageModel
-    {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public EditModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+    public class EditModel : TimeTrackModelBase
+    {        
+        public EditModel(TimeTracking.Models.TimeTrackDataContext context,
+                           UserManager<IdentityUser> userManager) 
+                           : base(context, userManager)
+        {            
         }
 
         [BindProperty]
@@ -29,46 +29,37 @@ namespace TimeTracking.Pages.TimeTracks
                 return NotFound();
             }
 
-            TimeTrack = await _context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
+            TimeTrack = await context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
 
             if (TimeTrack == null)
             {
                 return NotFound();
             }
+
+            PopulateIssuesDropDownList(TimeTrack.IssueID);
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id)
         {
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(TimeTrack).State = EntityState.Modified;
+            var trackToUpdate = await context.TimeTrack.FindAsync(id);
 
-            try
+            if (await TryUpdateModelAsync<TimeTrack>(
+                 trackToUpdate,
+                 "TimeTrack",   // Prefix for form value.
+                   s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TimeTrackExists(TimeTrack.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                await context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
 
-            return RedirectToPage("./Index");
-        }
-
-        private bool TimeTrackExists(int id)
-        {
-            return _context.TimeTrack.Any(e => e.ID == id);
-        }
+            PopulateIssuesDropDownList(TimeTrack.IssueID);
+            return Page();
+        }        
     }
 }

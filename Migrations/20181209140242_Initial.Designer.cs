@@ -10,7 +10,7 @@ using TimeTracking.Models;
 namespace TimeTracking.Migrations
 {
     [DbContext(typeof(TimeTrackDataContext))]
-    [Migration("20181208164549_Initial")]
+    [Migration("20181209140242_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -203,11 +203,11 @@ namespace TimeTracking.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("IssueID");
+                    b.Property<int>("IssueID");
 
                     b.Property<string>("OwnerID");
 
-                    b.Property<int>("SpentHours");
+                    b.Property<float>("SpentHours");
 
                     b.Property<DateTime>("TrackingDate");
 
@@ -267,7 +267,8 @@ namespace TimeTracking.Migrations
                 {
                     b.HasOne("TimeTracking.Models.Issue", "Issue")
                         .WithMany()
-                        .HasForeignKey("IssueID");
+                        .HasForeignKey("IssueID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -21,11 +21,7 @@ namespace TimeTracking.Models
                 // The admin user can do anything
 
                 var adminID = await EnsureUser(serviceProvider, testUserPw, "admin@contoso.com");
-                await EnsureRole(serviceProvider, adminID, Constants.ContactAdministratorsRole);
-
-                // allowed user can create and edit contacts that they create
-                var managerID = await EnsureUser(serviceProvider, testUserPw, "manager@contoso.com");
-                await EnsureRole(serviceProvider, managerID, Constants.ContactManagersRole);
+                await EnsureRole(serviceProvider, adminID, Constants.AdministratorsRole);               
          
                 SeedDB(context, adminID);
             }
@@ -81,7 +77,7 @@ namespace TimeTracking.Models
             context.TimeTrack.AddRange(            
                 new TimeTrack
                 {
-                    SpentHours = 1,
+                    SpentHours = 1.2f,
                     TrackingDate = new DateTime(2018, 11, 1),
                     OwnerID = adminID,
                     Issue = new Issue
@@ -90,6 +86,19 @@ namespace TimeTracking.Models
                         TaskDescription = "Some task to test"
                     }
                 }                
+            );
+
+            context.Issue.AddRange(            
+                new Issue
+                {
+                    TaskNumber = "VIR-2",
+                    TaskDescription = "Another task to test"
+                },
+                new Issue
+                {
+                    TaskNumber = "VIR-3",
+                    TaskDescription = "Third task to test"
+                }  
             );
 
             context.SaveChanges();

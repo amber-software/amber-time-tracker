@@ -173,9 +173,9 @@ namespace TimeTracking.Migrations
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    SpentHours = table.Column<int>(nullable: false),
+                    SpentHours = table.Column<float>(nullable: false),
                     TrackingDate = table.Column<DateTime>(nullable: false),
-                    IssueID = table.Column<int>(nullable: true),
+                    IssueID = table.Column<int>(nullable: false),
                     OwnerID = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -186,7 +186,7 @@ namespace TimeTracking.Migrations
                         column: x => x.IssueID,
                         principalTable: "Issue",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

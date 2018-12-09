@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -9,17 +10,17 @@ using TimeTracking.Models;
 
 namespace TimeTracking.Pages.TimeTracks
 {
-    public class CreateModel : PageModel
-    {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public CreateModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+    public class CreateModel : TimeTrackModelBase
+    {        
+        public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
+                           UserManager<IdentityUser> userManager) 
+                           : base(context, userManager)
+        {            
         }
 
         public IActionResult OnGet()
         {
+            PopulateIssuesDropDownList();
             return Page();
         }
 
@@ -33,10 +34,21 @@ namespace TimeTracking.Pages.TimeTracks
                 return Page();
             }
 
-            _context.TimeTrack.Add(TimeTrack);
-            await _context.SaveChangesAsync();
+            var emptyTrack = new TimeTrack();
+            emptyTrack.OwnerID = userManager.GetUserId(User);
 
-            return RedirectToPage("./Index");
+            if (await TryUpdateModelAsync<TimeTrack>(
+                 emptyTrack,
+                 "TimeTrack",   // Prefix for form value.
+                 s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
+            {
+                context.TimeTrack.Add(emptyTrack);
+                await context.SaveChangesAsync();
+                return RedirectToPage("./Index");
+            }
+
+            PopulateIssuesDropDownList(emptyTrack.IssueID);
+            return Page();
         }
     }
 }

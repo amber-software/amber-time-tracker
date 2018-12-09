@@ -201,11 +201,11 @@ namespace TimeTracking.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("IssueID");
+                    b.Property<int>("IssueID");
 
                     b.Property<string>("OwnerID");
 
-                    b.Property<int>("SpentHours");
+                    b.Property<float>("SpentHours");
 
                     b.Property<DateTime>("TrackingDate");
 
@@ -265,7 +265,8 @@ namespace TimeTracking.Migrations
                 {
                     b.HasOne("TimeTracking.Models.Issue", "Issue")
                         .WithMany()
-                        .HasForeignKey("IssueID");
+                        .HasForeignKey("IssueID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
