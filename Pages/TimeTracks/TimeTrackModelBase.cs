@@ -7,23 +7,19 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeTracking.Pages;
 using TimeTracking.Models;
 
 namespace TimeTracking.Pages.TimeTracks
 {    
-    public class TimeTrackModelBase : PageModel
-    {
-        protected readonly TimeTracking.Models.TimeTrackDataContext context;
-        protected readonly UserManager<IdentityUser> userManager;
-
+    public class TimeTrackModelBase : PageModelBase
+    {        
         public SelectList IssueNameSL { get; set; }
 
         public TimeTrackModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   UserManager<IdentityUser> userManager)
-                                  : base()
-        {
-            this.context = context;
-            this.userManager = userManager;
+                                  : base(context, userManager)
+        {            
         }
 
         public void PopulateIssuesDropDownList(object selectedIssue = null)

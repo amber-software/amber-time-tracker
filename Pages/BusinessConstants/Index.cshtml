@@ -1,0 +1,38 @@
+@page
+@model TimeTracking.Pages.BusinessConstants.IndexModel
+
+@{
+    ViewData["Title"] = "Constants";
+}
+
+<h2>Constants</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.BusinessConstant[0].ConstantName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.BusinessConstant[0].ConstantValue)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.BusinessConstant) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConstantName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ConstantValue)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.ID">Details</a>                
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

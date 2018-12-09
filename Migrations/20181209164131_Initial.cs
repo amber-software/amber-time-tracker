@@ -48,6 +48,20 @@ namespace TimeTracking.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BusinessConstant",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ConstantName = table.Column<string>(nullable: true),
+                    ConstantValue = table.Column<float>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BusinessConstant", x => x.ID);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Issue",
                 columns: table => new
                 {
@@ -232,6 +246,11 @@ namespace TimeTracking.Migrations
                 name: "IX_TimeTrack_IssueID",
                 table: "TimeTrack",
                 column: "IssueID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TimeTrack_OwnerID",
+                table: "TimeTrack",
+                column: "OwnerID");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -250,6 +269,9 @@ namespace TimeTracking.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "BusinessConstant");
 
             migrationBuilder.DropTable(
                 name: "TimeTrack");

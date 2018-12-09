@@ -18,6 +18,16 @@ namespace TimeTracking.Models
 
         public DbSet<TimeTracking.Models.TimeTrack> TimeTrack { get; set; }        
 
-        public DbSet<TimeTracking.Models.Issue> Issue { get; set; }
+        public DbSet<TimeTracking.Models.Issue> Issue { get; set; }        
+
+        public DbSet<TimeTracking.Models.BusinessConstant> BusinessConstant { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<TimeTrack>()
+                .HasIndex(c => c.OwnerID);
+        }
     }
 }

@@ -1,11 +1,19 @@
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+
 namespace TimeTracking.Authorization
 {
+    public static class ContactOperations
+    {        
+        public static OperationAuthorizationRequirement EditBusinessConstants = 
+          new OperationAuthorizationRequirement {Name=Constants.EditBusinessConstants};
+    }
+
     public class Constants
     {
-        public static readonly string CreateOperationName = "Create";
-        public static readonly string ReadOperationName = "Read";
-        public static readonly string UpdateOperationName = "Update";
-        public static readonly string DeleteOperationName = "Delete";        
+        public const string ProductionMultiplier = "ProductionMultiplier";
+        
+        public static readonly string EditBusinessConstants = "EditBusinessConstants";       
+         
 
         public static readonly string AdministratorsRole = "Administrators";
     }

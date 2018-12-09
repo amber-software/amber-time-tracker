@@ -86,19 +86,14 @@ namespace TimeTracking.Models
                         TaskDescription = "Some task to test"
                     }
                 }                
-            );
+            );            
 
-            context.Issue.AddRange(            
-                new Issue
+            context.BusinessConstant.AddRange(
+                new BusinessConstant
                 {
-                    TaskNumber = "VIR-2",
-                    TaskDescription = "Another task to test"
-                },
-                new Issue
-                {
-                    TaskNumber = "VIR-3",
-                    TaskDescription = "Third task to test"
-                }  
+                    ConstantName = Constants.ProductionMultiplier,
+                    ConstantValue = 2.0f
+                }
             );
 
             context.SaveChanges();

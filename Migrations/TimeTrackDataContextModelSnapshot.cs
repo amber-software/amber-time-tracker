@@ -180,6 +180,21 @@ namespace TimeTracking.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("TimeTracking.Models.BusinessConstant", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("ConstantName");
+
+                    b.Property<float>("ConstantValue");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("BusinessConstant");
+                });
+
             modelBuilder.Entity("TimeTracking.Models.Issue", b =>
                 {
                     b.Property<int>("ID")
@@ -212,6 +227,8 @@ namespace TimeTracking.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("IssueID");
+
+                    b.HasIndex("OwnerID");
 
                     b.ToTable("TimeTrack");
                 });
