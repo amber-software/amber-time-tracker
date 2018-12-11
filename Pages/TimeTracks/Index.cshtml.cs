@@ -8,14 +8,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Pages;
 using TimeTracking.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TimeTracking.Pages.TimeTracks
 {
     public class IndexModel : PageModelBase
     {        
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context, 
+                          IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager)
-                                  : base(context, userManager)                                  
+                                  : base(context, authorizationService, userManager)                                  
         {            
         }
 

@@ -54,7 +54,8 @@ namespace TimeTracking.Migrations
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     ConstantName = table.Column<string>(nullable: true),
-                    ConstantValue = table.Column<float>(nullable: false)
+                    ConstantValue = table.Column<float>(nullable: false),
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {

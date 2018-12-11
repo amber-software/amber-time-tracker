@@ -92,7 +92,8 @@ namespace TimeTracking.Models
                 new BusinessConstant
                 {
                     ConstantName = Constants.ProductionMultiplier,
-                    ConstantValue = 2.0f
+                    ConstantValue = 2.0f,
+                    Description = "Production estimation time multiplier value"
                 }
             );
 

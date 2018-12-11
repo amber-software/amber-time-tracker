@@ -190,6 +190,8 @@ namespace TimeTracking.Migrations
 
                     b.Property<float>("ConstantValue");
 
+                    b.Property<string>("Description");
+
                     b.HasKey("ID");
 
                     b.ToTable("BusinessConstant");

@@ -8,5 +8,6 @@ namespace TimeTracking.Models
         public int ID { get; set; }
         public string ConstantName { get; set; }
         public float ConstantValue { get; set; }
+        public string Description { get; set; }
     }
 }

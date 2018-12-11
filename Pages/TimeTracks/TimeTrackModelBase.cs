@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Pages;
 using TimeTracking.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace TimeTracking.Pages.TimeTracks
 {    
@@ -17,8 +18,9 @@ namespace TimeTracking.Pages.TimeTracks
         public SelectList IssueNameSL { get; set; }
 
         public TimeTrackModelBase(TimeTracking.Models.TimeTrackDataContext context, 
+                                  IAuthorizationService authorizationService,
                                   UserManager<IdentityUser> userManager)
-                                  : base(context, userManager)
+                                  : base(context, authorizationService, userManager)
         {            
         }
 

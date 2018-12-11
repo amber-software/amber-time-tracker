@@ -10,7 +10,7 @@ using TimeTracking.Models;
 namespace TimeTracking.Migrations
 {
     [DbContext(typeof(TimeTrackDataContext))]
-    [Migration("20181209164131_Initial")]
+    [Migration("20181211150711_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -191,6 +191,8 @@ namespace TimeTracking.Migrations
                     b.Property<string>("ConstantName");
 
                     b.Property<float>("ConstantValue");
+
+                    b.Property<string>("Description");
 
                     b.HasKey("ID");
 

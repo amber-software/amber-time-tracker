@@ -14,6 +14,7 @@ using TimeTracking.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using TimeTracking.Authorization;
 
 namespace TimeTracking
 {
@@ -68,7 +69,8 @@ namespace TimeTracking
                     })
                     .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            
+            services.AddScoped<IAuthorizationHandler,
+                                  BusinessConstantAdministratorsAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

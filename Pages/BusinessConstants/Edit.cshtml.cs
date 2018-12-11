@@ -2,21 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeTracking.Authorization;
 using TimeTracking.Models;
 
 namespace TimeTracking.Pages.BusinessConstants
 {
-    public class EditModel : PageModel
-    {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public EditModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+    public class EditModel : PageModelBase
+    {        
+        public EditModel(TimeTracking.Models.TimeTrackDataContext context,
+                          IAuthorizationService authorizationService,
+                          UserManager<IdentityUser> userManager)
+                                  : base(context, authorizationService, userManager)
+        {            
         }
 
         [BindProperty]
@@ -29,12 +32,21 @@ namespace TimeTracking.Pages.BusinessConstants
                 return NotFound();
             }
 
-            BusinessConstant = await _context.BusinessConstant.FirstOrDefaultAsync(m => m.ID == id);
+            BusinessConstant = await context.BusinessConstant.FirstOrDefaultAsync(m => m.ID == id);
 
             if (BusinessConstant == null)
             {
                 return NotFound();
             }
+
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                                                      User, BusinessConstant,
+                                                      BusinessConstantsOperations.EditBusinessConstants);
+            if (!isAuthorized.Succeeded)
+            {
+                return new ChallengeResult();
+            }
+
             return Page();
         }
 
@@ -45,11 +57,19 @@ namespace TimeTracking.Pages.BusinessConstants
                 return Page();
             }
 
-            _context.Attach(BusinessConstant).State = EntityState.Modified;
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                                                      User, BusinessConstant,
+                                                      BusinessConstantsOperations.EditBusinessConstants);
+            if (!isAuthorized.Succeeded)
+            {
+                return new ChallengeResult();
+            }
+
+            context.Attach(BusinessConstant).State = EntityState.Modified;
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -68,7 +88,7 @@ namespace TimeTracking.Pages.BusinessConstants
 
         private bool BusinessConstantExists(int id)
         {
-            return _context.BusinessConstant.Any(e => e.ID == id);
+            return context.BusinessConstant.Any(e => e.ID == id);
         }
     }
 }

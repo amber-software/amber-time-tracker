@@ -29,7 +29,14 @@
                 @Html.DisplayFor(modelItem => item.ConstantValue)
             </td>
             <td>
-                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
+                @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, item,
+                                                    BusinessConstantsOperations.EditBusinessConstants)).Succeeded)
+                {
+                    <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a>
+                    <text> | </text>
+                }
+
                 <a asp-page="./Details" asp-route-id="@item.ID">Details</a>                
             </td>
         </tr>
