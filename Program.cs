@@ -30,10 +30,11 @@ namespace TimeTracking
                 // Set password with the Secret Manager tool.
                 // dotnet user-secrets set SeedUserPW <pw>
 
+                var testUserEmail = config["SeedUserEmail"];
                 var testUserPw = config["SeedUserPW"];
                 try
                 {                                        
-                    SeedData.Initialize(services, testUserPw).Wait();
+                    SeedData.Initialize(services, testUserEmail, testUserPw).Wait();
                 }
                 catch (Exception ex)
                 {

@@ -1,0 +1,65 @@
+@page
+@model TimeTracking.Pages.Sprints.IndexModel
+
+@{
+    ViewData["Title"] = "Sprints";
+}
+
+<h2>Sprints</h2>
+
+@if ((await AuthorizationService.AuthorizeAsync(User, new Sprint(), SprintsOperations.EditSprints)).Succeeded)
+{
+    <p>
+        <a asp-page="Create">Create New</a>
+    </p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Sprint[0].SprintNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sprint[0].StartDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sprint[0].StopDate)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Sprint) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.SprintNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StartDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.StopDate)
+            </td>
+            <td>
+                @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, item,
+                                                    SprintsOperations.EditSprints)).Succeeded)
+                {
+                    <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a>
+                    <text> | </text>
+                }
+                
+                <a asp-page="./Details" asp-route-id="@item.ID">Details</a>
+
+                @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, item,
+                                                    SprintsOperations.EditSprints)).Succeeded)
+                {
+                    <text> | </text>
+                    <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>                    
+                }                
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

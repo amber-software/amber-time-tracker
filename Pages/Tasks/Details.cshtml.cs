@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -9,15 +11,14 @@ using TimeTracking.Models;
 
 namespace TimeTracking.Pages.Tasks
 {
-    public class DetailsModel : PageModel
+    public class DetailsModel : TaskModelBase
     {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public DetailsModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+        public DetailsModel(TimeTracking.Models.TimeTrackDataContext context,
+                          IAuthorizationService authorizationService,
+                          UserManager<IdentityUser> userManager)
+                                  : base(context, authorizationService, userManager)
+        {            
         }
-
         public Issue Issue { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
@@ -27,7 +28,7 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await _context.Issue.FirstOrDefaultAsync(m => m.ID == id);
+            Issue = await context.Issue.Include(c => c.Sprint).FirstOrDefaultAsync(m => m.ID == id);
 
             if (Issue == null)
             {

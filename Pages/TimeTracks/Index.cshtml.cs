@@ -12,12 +12,12 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace TimeTracking.Pages.TimeTracks
 {
-    public class IndexModel : PageModelBase
+    public class IndexModel : TimeTrackModelBase
     {        
-        public IndexModel(TimeTracking.Models.TimeTrackDataContext context, 
-                          IAuthorizationService authorizationService,
-                          UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)                                  
+        public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
+                           IAuthorizationService authorizationService,
+                           UserManager<IdentityUser> userManager) 
+                           : base(context, authorizationService, userManager)
         {            
         }
 

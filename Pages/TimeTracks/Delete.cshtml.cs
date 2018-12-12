@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +11,13 @@ using TimeTracking.Models;
 
 namespace TimeTracking.Pages.TimeTracks
 {
-    public class DeleteModel : PageModel
-    {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public DeleteModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+    public class DeleteModel : TimeTrackModelBase
+    {        
+        public DeleteModel(TimeTracking.Models.TimeTrackDataContext context,
+                           IAuthorizationService authorizationService,
+                           UserManager<IdentityUser> userManager) 
+                           : base(context, authorizationService, userManager)
+        {            
         }
 
         [BindProperty]
@@ -28,7 +30,7 @@ namespace TimeTracking.Pages.TimeTracks
                 return NotFound();
             }
 
-            TimeTrack = await _context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
+            TimeTrack = await context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
 
             if (TimeTrack == null)
             {
@@ -44,12 +46,12 @@ namespace TimeTracking.Pages.TimeTracks
                 return NotFound();
             }
 
-            TimeTrack = await _context.TimeTrack.FindAsync(id);
+            TimeTrack = await context.TimeTrack.FindAsync(id);
 
             if (TimeTrack != null)
             {
-                _context.TimeTrack.Remove(TimeTrack);
-                await _context.SaveChangesAsync();
+                context.TimeTrack.Remove(TimeTrack);
+                await context.SaveChangesAsync();
             }
 
             return RedirectToPage("./Index");

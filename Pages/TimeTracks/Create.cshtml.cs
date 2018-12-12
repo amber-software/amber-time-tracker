@@ -21,7 +21,7 @@ namespace TimeTracking.Pages.TimeTracks
         }
 
         public IActionResult OnGet()
-        {
+        {            
             PopulateIssuesDropDownList();
             return Page();
         }
@@ -33,6 +33,7 @@ namespace TimeTracking.Pages.TimeTracks
         {
             if (!ModelState.IsValid)
             {
+                PopulateIssuesDropDownList();
                 return Page();
             }
 

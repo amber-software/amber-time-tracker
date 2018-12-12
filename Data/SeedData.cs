@@ -10,7 +10,7 @@ namespace TimeTracking.Models
 {
     public static class SeedData
     {
-        public static async Task Initialize(IServiceProvider serviceProvider, string testUserPw)
+        public static async Task Initialize(IServiceProvider serviceProvider, string testUserEmail, string testUserPw)
         {   
             using (var context = new TimeTrackDataContext(
                 serviceProvider.GetRequiredService<DbContextOptions<TimeTrackDataContext>>()))
@@ -20,7 +20,7 @@ namespace TimeTracking.Models
                 // dotnet user-secrets set SeedUserPW <pw>
                 // The admin user can do anything
 
-                var adminID = await EnsureUser(serviceProvider, testUserPw, "admin@contoso.com");
+                var adminID = await EnsureUser(serviceProvider, testUserPw, testUserEmail);
                 await EnsureRole(serviceProvider, adminID, Constants.AdministratorsRole);               
          
                 SeedDB(context, adminID);
@@ -74,17 +74,27 @@ namespace TimeTracking.Models
                 return;   // DB has been seeded
             }
 
+            var testSprint = new Sprint
+            {
+                SprintNumber = "Sprint1",
+                StartDate = DateTime.Now.Date.AddDays(-1),
+                StopDate = DateTime.Now.Date.AddDays(5),
+            };
+
+            var testTask = new Issue
+            {
+                TaskNumber = "VIR-1",
+                TaskDescription = "Some task to test",
+                Sprint = testSprint
+            };
+
             context.TimeTrack.AddRange(            
                 new TimeTrack
                 {
                     SpentHours = 1.2f,
-                    TrackingDate = new DateTime(2018, 11, 1),
+                    TrackingDate = DateTime.Now.Date,
                     OwnerID = adminID,
-                    Issue = new Issue
-                    {
-                        TaskNumber = "VIR-1",
-                        TaskDescription = "Some task to test"
-                    }
+                    Issue = testTask
                 }                
             );            
 

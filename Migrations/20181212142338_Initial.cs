@@ -63,17 +63,18 @@ namespace TimeTracking.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Issue",
+                name: "Sprint",
                 columns: table => new
                 {
                     ID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    TaskNumber = table.Column<string>(nullable: true),
-                    TaskDescription = table.Column<string>(nullable: true)
+                    SprintNumber = table.Column<string>(nullable: false),
+                    StartDate = table.Column<DateTime>(nullable: false),
+                    StopDate = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Issue", x => x.ID);
+                    table.PrimaryKey("PK_Sprint", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -183,6 +184,27 @@ namespace TimeTracking.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Issue",
+                columns: table => new
+                {
+                    ID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    TaskNumber = table.Column<string>(nullable: false),
+                    TaskDescription = table.Column<string>(nullable: false),
+                    SprintID = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Issue", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Issue_Sprint_SprintID",
+                        column: x => x.SprintID,
+                        principalTable: "Sprint",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TimeTrack",
                 columns: table => new
                 {
@@ -191,7 +213,7 @@ namespace TimeTracking.Migrations
                     SpentHours = table.Column<float>(nullable: false),
                     TrackingDate = table.Column<DateTime>(nullable: false),
                     IssueID = table.Column<int>(nullable: false),
-                    OwnerID = table.Column<string>(nullable: true)
+                    OwnerID = table.Column<string>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -244,6 +266,11 @@ namespace TimeTracking.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Issue_SprintID",
+                table: "Issue",
+                column: "SprintID");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_TimeTrack_IssueID",
                 table: "TimeTrack",
                 column: "IssueID");
@@ -285,6 +312,9 @@ namespace TimeTracking.Migrations
 
             migrationBuilder.DropTable(
                 name: "Issue");
+
+            migrationBuilder.DropTable(
+                name: "Sprint");
         }
     }
 }

@@ -46,8 +46,11 @@ namespace TimeTracking.Pages.TimeTracks
         {
             if (!ModelState.IsValid)
             {
+                PopulateIssuesDropDownList(TimeTrack.IssueID);
                 return Page();
             }
+
+            context.Attach(TimeTrack).State = EntityState.Modified;
 
             var trackToUpdate = await context.TimeTrack.FindAsync(id);
 

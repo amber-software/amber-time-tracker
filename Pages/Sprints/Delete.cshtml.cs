@@ -7,12 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
+using TimeTracking.Authorization;
 using TimeTracking.Models;
 
-namespace TimeTracking.Pages.Tasks
+namespace TimeTracking.Pages.Sprints
 {
-    public class DeleteModel : TaskModelBase
-    {
+    public class DeleteModel : PageModelBase
+    {        
         public DeleteModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager)
@@ -21,7 +22,7 @@ namespace TimeTracking.Pages.Tasks
         }
 
         [BindProperty]
-        public Issue Issue { get; set; }
+        public Sprint Sprint { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -30,9 +31,17 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await context.Issue.Include(c => c.Sprint).FirstOrDefaultAsync(m => m.ID == id);
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                                                      User, new Sprint(),
+                                                      SprintsOperations.EditSprints);
+            if (!isAuthorized.Succeeded)
+            {
+                return new ChallengeResult();
+            }
 
-            if (Issue == null)
+            Sprint = await context.Sprint.FirstOrDefaultAsync(m => m.ID == id);
+
+            if (Sprint == null)
             {
                 return NotFound();
             }
@@ -46,11 +55,19 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await context.Issue.FindAsync(id);
-
-            if (Issue != null)
+            var isAuthorized = await authorizationService.AuthorizeAsync(
+                                                      User, Sprint,
+                                                      SprintsOperations.EditSprints);
+            if (!isAuthorized.Succeeded)
             {
-                context.Issue.Remove(Issue);
+                return new ChallengeResult();
+            }
+
+            Sprint = await context.Sprint.FindAsync(id);
+
+            if (Sprint != null)
+            {
+                context.Sprint.Remove(Sprint);
                 await context.SaveChangesAsync();
             }
 

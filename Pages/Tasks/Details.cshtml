@@ -8,7 +8,7 @@
 <h2>Details</h2>
 
 <div>
-    <h4>Issue</h4>
+    <h4>Task</h4>
     <hr />
     <dl class="dl-horizontal">
         <dt>
@@ -22,6 +22,12 @@
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Issue.TaskDescription)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Issue.Sprint)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Issue.Sprint.SprintNumber)
         </dd>
     </dl>
 </div>

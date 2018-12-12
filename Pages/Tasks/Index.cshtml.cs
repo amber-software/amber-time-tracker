@@ -12,8 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace TimeTracking.Pages.Tasks
 {
-    public class IndexModel : PageModelBase
-    {        
+    public class IndexModel : TaskModelBase
+    {
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager)
@@ -25,7 +25,10 @@ namespace TimeTracking.Pages.Tasks
 
         public async Task OnGetAsync()
         {
-            Issue = await context.Issue.ToListAsync();
+            Issue = await context.Issue
+                            .Include(c => c.Sprint)
+                            .AsNoTracking()
+                            .ToListAsync();                            
         }
     }
 }

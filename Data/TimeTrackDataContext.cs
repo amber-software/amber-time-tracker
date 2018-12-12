@@ -20,7 +20,9 @@ namespace TimeTracking.Models
 
         public DbSet<TimeTracking.Models.Issue> Issue { get; set; }        
 
-        public DbSet<TimeTracking.Models.BusinessConstant> BusinessConstant { get; set; }
+        public DbSet<TimeTracking.Models.BusinessConstant> BusinessConstant { get; set; }        
+
+        public DbSet<TimeTracking.Models.Sprint> Sprint { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -28,6 +30,8 @@ namespace TimeTracking.Models
 
             modelBuilder.Entity<TimeTrack>()
                 .HasIndex(c => c.OwnerID);
+            modelBuilder.Entity<TimeTrack>()
+                .Property(c => c.OwnerID).IsRequired();
         }
     }
 }

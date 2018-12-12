@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -10,13 +12,13 @@ using TimeTracking.Models;
 
 namespace TimeTracking.Pages.Tasks
 {
-    public class EditModel : PageModel
+    public class EditModel : TaskModelBase
     {
-        private readonly TimeTracking.Models.TimeTrackDataContext _context;
-
-        public EditModel(TimeTracking.Models.TimeTrackDataContext context)
-        {
-            _context = context;
+        public EditModel(TimeTracking.Models.TimeTrackDataContext context,
+                          IAuthorizationService authorizationService,
+                          UserManager<IdentityUser> userManager)
+                                  : base(context, authorizationService, userManager)
+        {            
         }
 
         [BindProperty]
@@ -29,46 +31,40 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await _context.Issue.FirstOrDefaultAsync(m => m.ID == id);
+            Issue = await context.Issue.FirstOrDefaultAsync(m => m.ID == id);
 
             if (Issue == null)
             {
                 return NotFound();
             }
+
+            PopulateSprintsDropDownList(Issue.SprintID);
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id)
         {
             if (!ModelState.IsValid)
             {
+                PopulateSprintsDropDownList(Issue.SprintID);
                 return Page();
             }
 
-            _context.Attach(Issue).State = EntityState.Modified;
+            context.Attach(Issue).State = EntityState.Modified;
 
-            try
+            var trackToUpdate = await context.Issue.FindAsync(id);
+
+            if (await TryUpdateModelAsync<Issue>(
+                 trackToUpdate,
+                 "Issue",   // Prefix for form value.
+                 s => s.SprintID, s => s.TaskNumber, s => s.TaskDescription))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!IssueExists(Issue.ID))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                await context.SaveChangesAsync();
+                return RedirectToPage("./Index");
             }
 
-            return RedirectToPage("./Index");
-        }
-
-        private bool IssueExists(int id)
-        {
-            return _context.Issue.Any(e => e.ID == id);
+            PopulateSprintsDropDownList(Issue.SprintID);
+            return Page();
         }
     }
 }

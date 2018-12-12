@@ -10,7 +10,7 @@ using TimeTracking.Models;
 namespace TimeTracking.Migrations
 {
     [DbContext(typeof(TimeTrackDataContext))]
-    [Migration("20181211150711_Initial")]
+    [Migration("20181212142338_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -205,13 +205,37 @@ namespace TimeTracking.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("TaskDescription");
+                    b.Property<int>("SprintID");
 
-                    b.Property<string>("TaskNumber");
+                    b.Property<string>("TaskDescription")
+                        .IsRequired();
+
+                    b.Property<string>("TaskNumber")
+                        .IsRequired();
 
                     b.HasKey("ID");
 
+                    b.HasIndex("SprintID");
+
                     b.ToTable("Issue");
+                });
+
+            modelBuilder.Entity("TimeTracking.Models.Sprint", b =>
+                {
+                    b.Property<int>("ID")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("SprintNumber")
+                        .IsRequired();
+
+                    b.Property<DateTime>("StartDate");
+
+                    b.Property<DateTime>("StopDate");
+
+                    b.HasKey("ID");
+
+                    b.ToTable("Sprint");
                 });
 
             modelBuilder.Entity("TimeTracking.Models.TimeTrack", b =>
@@ -222,7 +246,8 @@ namespace TimeTracking.Migrations
 
                     b.Property<int>("IssueID");
 
-                    b.Property<string>("OwnerID");
+                    b.Property<string>("OwnerID")
+                        .IsRequired();
 
                     b.Property<float>("SpentHours");
 
@@ -279,6 +304,14 @@ namespace TimeTracking.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("TimeTracking.Models.Issue", b =>
+                {
+                    b.HasOne("TimeTracking.Models.Sprint", "Sprint")
+                        .WithMany()
+                        .HasForeignKey("SprintID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

@@ -9,18 +9,18 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
 
-namespace TimeTracking.Pages.TimeTracks
+namespace TimeTracking.Pages.Sprints
 {
-    public class DetailsModel : TimeTrackModelBase
+    public class DetailsModel : PageModelBase
     {        
         public DetailsModel(TimeTracking.Models.TimeTrackDataContext context,
-                           IAuthorizationService authorizationService,
-                           UserManager<IdentityUser> userManager) 
-                           : base(context, authorizationService, userManager)
+                          IAuthorizationService authorizationService,
+                          UserManager<IdentityUser> userManager)
+                                  : base(context, authorizationService, userManager)
         {            
         }
 
-        public TimeTrack TimeTrack { get; set; }
+        public Sprint Sprint { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -29,9 +29,9 @@ namespace TimeTracking.Pages.TimeTracks
                 return NotFound();
             }
 
-            TimeTrack = await context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
+            Sprint = await context.Sprint.FirstOrDefaultAsync(m => m.ID == id);
 
-            if (TimeTrack == null)
+            if (Sprint == null)
             {
                 return NotFound();
             }

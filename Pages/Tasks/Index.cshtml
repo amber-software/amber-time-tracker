@@ -2,10 +2,10 @@
 @model TimeTracking.Pages.Tasks.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tasks";
 }
 
-<h2>Index</h2>
+<h2>Tasks</h2>
 
 <p>
     <a asp-page="Create">Create New</a>
@@ -18,6 +18,9 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Issue[0].TaskDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Sprint.SprintNumber)
             </th>
             <th></th>
         </tr>
@@ -32,9 +35,18 @@
                 @Html.DisplayFor(modelItem => item.TaskDescription)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.Sprint.SprintNumber)
+            </td>
+            <td>
                 <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
+                <a asp-page="./Details" asp-route-id="@item.ID">Details</a>
+                @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, item,
+                                                    IssuesOperations.DeleteTasks)).Succeeded)
+                {
+                    <text> | </text>
+                    <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>                    
+                }                
             </td>
         </tr>
 }
