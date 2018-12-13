@@ -30,7 +30,13 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a asp-page="/TimeTracks/Index">Tracking</a></li>                                        
+                    @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, new TimeTrack(),
+                                                    TimeTracksOperations.ViewStatistics)).Succeeded)
+                    {
+                        <li><a asp-page="/TimeTracks/Index">Tracking</a></li>                                        
+                    }
+                    
                     <li><a asp-page="/Tasks/Index">Tasks</a></li>
                     <li><a asp-page="/Sprints/Index">Sprints</a></li>
                     <li><a asp-page="/BusinessConstants/Index">Constants</a></li>

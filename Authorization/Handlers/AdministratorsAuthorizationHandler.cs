@@ -6,12 +6,12 @@ using Microsoft.AspNetCore.Identity;
 
 namespace TimeTracking.Authorization
 {
-    public class BusinessConstantAdministratorsAuthorizationHandler
-                    : AuthorizationHandler<OperationAuthorizationRequirement, BusinessConstant>
+    public abstract class AdministratorsAuthorizationHandler<T>
+                    : AuthorizationHandler<OperationAuthorizationRequirement, T>
     {
         private UserManager<IdentityUser> _userManager;
 
-        public BusinessConstantAdministratorsAuthorizationHandler(UserManager<IdentityUser> 
+        public AdministratorsAuthorizationHandler(UserManager<IdentityUser> 
             userManager)
         {
             _userManager = userManager;
@@ -19,8 +19,8 @@ namespace TimeTracking.Authorization
 
         protected override async Task HandleRequirementAsync(
                                               AuthorizationHandlerContext context,
-                                    OperationAuthorizationRequirement requirement, 
-                                     BusinessConstant resource)
+                                              OperationAuthorizationRequirement requirement, 
+                                              T resource)
         {
             if (context.User == null)
             {
@@ -30,7 +30,7 @@ namespace TimeTracking.Authorization
             // Administrators can do anything.
             var userIdentity = await _userManager.GetUserAsync(context.User);
             
-            if (await _userManager.IsInRoleAsync(userIdentity, Constants.AdministratorsRole))
+            if (userIdentity != null && await _userManager.IsInRoleAsync(userIdentity, Constants.AdministratorsRole))
             {
                 context.Succeed(requirement);
             }        

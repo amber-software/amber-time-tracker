@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using TimeTracking.Pages;
 using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
+using TimeTracking.Authorization;
 
 namespace TimeTracking.Pages.TimeTracks
 {
@@ -23,15 +24,26 @@ namespace TimeTracking.Pages.TimeTracks
 
         public IList<TimeTrack> TimeTrack { get;set; }
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(string id)
         {
-            var currentUserId = userManager.GetUserId(User);
+            if (!string.IsNullOrEmpty(id) &&
+                !(await authorizationService.AuthorizeAsync(
+                                                      User, new TimeTrack(),
+                                                      TimeTracksOperations.ViewStatistics))
+                .Succeeded)
+            {
+                return new ChallengeResult();
+            }
+
+            var currentUserId = string.IsNullOrEmpty(id) ? userManager.GetUserId(User) : id;
 
             TimeTrack = await context.TimeTrack
                             .Where(t => t.OwnerID == currentUserId)
                             .Include(c => c.Issue)
                             .AsNoTracking()
                             .ToListAsync();
+
+            return Page();
         }
     }
 }
