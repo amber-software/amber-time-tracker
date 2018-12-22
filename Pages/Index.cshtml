@@ -33,7 +33,10 @@
                 @Html.DisplayFor(modelItem => item.TotalRemainingHours)
             </td>
             <td>
-                <a asp-page="/TimeTracks/Index" asp-route-id="@item.UserID">View</a>
+                @if(item.TimeTrackCount > 0)
+                {
+                    <a asp-page="/TimeTracks/Index" asp-route-id="@item.UserID">View</a>
+                }
             </td>
         </tr>
 }

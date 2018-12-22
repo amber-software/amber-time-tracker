@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Identity;
 
 namespace TimeTracking.Authorization
 {
-    public class TimeTrackViewStatisticsAuthorizationHandler
+    public class TimeTrackAdministratorsAuthorizationHandler
                     : AdministratorsAuthorizationHandler<TimeTrack>
     {        
-        public TimeTrackViewStatisticsAuthorizationHandler(UserManager<IdentityUser> userManager)
+        public TimeTrackAdministratorsAuthorizationHandler(UserManager<IdentityUser> userManager)
             : base(userManager)
         {            
         }        

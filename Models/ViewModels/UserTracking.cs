@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace TimeTracking.Models
 {
-    public class TimeTrackingVM
+    public class UserTracking
     {
         public string UserID { get; set; }
 
@@ -12,5 +12,7 @@ namespace TimeTracking.Models
         public float TotalSpentHours { get; set; }                
 
         public float TotalRemainingHours { get; set; }
+
+        public int TimeTrackCount { get; set; }
     }
 }

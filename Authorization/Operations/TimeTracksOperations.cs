@@ -6,5 +6,8 @@ namespace TimeTracking.Authorization
     {
         public static OperationAuthorizationRequirement ViewStatistics = 
           new OperationAuthorizationRequirement {Name=Constants.ViewStatistics};
+
+        public static OperationAuthorizationRequirement EditTimeTracksOfOthers = 
+          new OperationAuthorizationRequirement {Name=Constants.EditTimeTracksOfOthers};
     }
 }  

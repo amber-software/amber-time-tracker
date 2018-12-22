@@ -79,7 +79,7 @@ namespace TimeTracking
                                   TasksAdministratorsAuthorizationHandler>();
 
             services.AddScoped<IAuthorizationHandler,                           
-                                  TimeTrackViewStatisticsAuthorizationHandler>();
+                                  TimeTrackAdministratorsAuthorizationHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

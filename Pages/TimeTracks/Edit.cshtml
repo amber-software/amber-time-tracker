@@ -5,7 +5,15 @@
     ViewData["Title"] = "Edit";
 }
 
-<h2>Edit</h2>
+<h2>
+    Edit
+    @if (UserManager.GetUserId(User) != Model.TimeTrack.OwnerID)
+    {
+        <span>(
+        @((await UserManager.FindByIdAsync(Model.TimeTrack.OwnerID)).UserName)
+        )</span>
+    }
+</h2>
 
 <h4>TimeTrack</h4>
 <hr />
@@ -13,7 +21,9 @@
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-route-id="TargetUserId" />
             <input type="hidden" asp-for="TimeTrack.ID" />
+            <input type="hidden" asp-for="TimeTrack.OwnerID" />
             <div class="form-group">
                 <label asp-for="TimeTrack.SpentHours" class="control-label"></label>
                 <input asp-for="TimeTrack.SpentHours" class="form-control" />

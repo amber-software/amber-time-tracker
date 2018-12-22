@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace TimeTracking.Models
@@ -16,6 +17,8 @@ namespace TimeTracking.Models
         
         [Required]
         [DataType(DataType.Date)]
-        public DateTime StopDate { get; set; }                        
+        public DateTime StopDate { get; set; }
+
+        public ICollection<Issue> Issues { get; set; }                        
     }
 }

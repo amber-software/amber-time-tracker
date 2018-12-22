@@ -5,15 +5,22 @@
     ViewData["Title"] = "Create";
 }
 
-<h2>Create</h2>
-
+<h2>Create
+@if (Model.TargetUserId != null && UserManager.GetUserId(User) != Model.TargetUserId)
+{
+    <span>(
+    @((await UserManager.FindByIdAsync(Model.TargetUserId)).UserName)
+    )</span>
+}
+</h2>
 <h4>TimeTrack</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="post">
-            <input type="hidden" asp-for="TimeTrack.OwnerID" />
+        <form method="post">            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="id" value="@Model.TargetUserId" />
+            <input type="hidden" name="sprintId" value="@Model.TargetSprintId" />
             <div class="form-group">
                 <label asp-for="TimeTrack.SpentHours" class="control-label"></label>
                 <input asp-for="TimeTrack.SpentHours" class="form-control" />

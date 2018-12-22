@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using TimeTracking.Authorization;
 using TimeTracking.Models;
 
 namespace TimeTracking.Pages.TimeTracks
@@ -21,38 +22,83 @@ namespace TimeTracking.Pages.TimeTracks
         {            
         }
 
+        private IQueryable<TimeTrack> timeTrackQuery => from tt in context.TimeTrack.Include(t => t.Issue).ThenInclude(i => i.Sprint)                                                        
+                                                        select tt;
+
         [BindProperty]
         public TimeTrack TimeTrack { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public async Task<IActionResult> OnGetAsync(int timeTrackId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            TimeTrack = await context.TimeTrack.FirstOrDefaultAsync(m => m.ID == id);
-
+            // Validation                                                
+            TimeTrack = await timeTrackQuery
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync(t => t.ID == timeTrackId);
+        
             if (TimeTrack == null)
             {
-                return NotFound();
+                throw new ApplicationException($"There is no suitable time track with ID={timeTrackId} in database!");
             }
 
-            PopulateIssuesDropDownList(TimeTrack.IssueID);
+            if (userManager.GetUserId(User) != TimeTrack.OwnerID)
+            {
+                TargetUserId = TimeTrack.OwnerID;
+                if (! await AllowedToEditTimeTracksOfAnother())
+
+                return new ChallengeResult();
+            }
+
+
+            // Set data for editing
+            PopulateIssuesDropDownList(TimeTrack.Issue.Sprint);
+
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync()
         {
-            if (!ModelState.IsValid)
+            // Validation
+            string targetUserId = null;
+
+            if (userManager.GetUserId(User) != TimeTrack.OwnerID)
             {
-                PopulateIssuesDropDownList(TimeTrack.IssueID);
-                return Page();
+                targetUserId = TimeTrack.OwnerID;
+                if (! await AllowedToEditTimeTracksOfAnother())
+                return new ChallengeResult();
             }
 
-            context.Attach(TimeTrack).State = EntityState.Modified;
+            var trackToUpdate = await timeTrackQuery                                        
+                                        .FirstOrDefaultAsync(t => t.ID == TimeTrack.ID);
 
-            var trackToUpdate = await context.TimeTrack.FindAsync(id);
+            if (trackToUpdate == null)
+            {
+                throw new ApplicationException($"There is no suitable time track with ID={TimeTrack.ID} in database!");
+            }
+            
+            if (!ModelState.IsValid)
+            {                
+                PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);
+                return Page();
+            }
+            
+            if (TimeTrack.TrackingDate != trackToUpdate.TrackingDate)
+            {
+                var trackForIssueInAnotherDate = await timeTrackQuery                                        
+                                        .FirstOrDefaultAsync(t => t.OwnerID == TimeTrack.OwnerID &&
+                                                                  t.IssueID == TimeTrack.IssueID && 
+                                                                  t.TrackingDate == TimeTrack.TrackingDate);
+
+                if (trackForIssueInAnotherDate != null)
+                {
+                    trackForIssueInAnotherDate.SpentHours += TimeTrack.SpentHours;
+                    
+                    context.TimeTrack.Remove(trackToUpdate);
+
+                    await context.SaveChangesAsync();
+                    return RedirectToPage("./Index", null, new { id = targetUserId });
+                    
+                }        
+            }
 
             if (await TryUpdateModelAsync<TimeTrack>(
                  trackToUpdate,
@@ -60,10 +106,11 @@ namespace TimeTracking.Pages.TimeTracks
                    s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
             {
                 await context.SaveChangesAsync();
-                return RedirectToPage("./Index");
+                
+                return RedirectToPage($"./Index", null, new { id = targetUserId } );
             }
-
-            PopulateIssuesDropDownList(TimeTrack.IssueID);
+                        
+            PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);
             return Page();
         }        
     }

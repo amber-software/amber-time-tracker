@@ -9,6 +9,7 @@ namespace TimeTracking.Authorization
         public static readonly string EditSprints = "EditSprints";
         public static readonly string DeleteTasks = "DeleteTasks";
         public static readonly string ViewStatistics = "ViewStatistics";
+        public static readonly string EditTimeTracksOfOthers = "EditTimeTracksOfOthers";
         
          
         public static readonly string AdministratorsRole = "Administrators";

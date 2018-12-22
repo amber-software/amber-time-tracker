@@ -5,44 +5,86 @@
     ViewData["Title"] = "Index";
 }
 
-<h2>Time Tracks</h2>
-
+<h2>Time Tracks
+@if (Model.TargetUserId != null && UserManager.GetUserId(User) != Model.TargetUserId)
+{
+    <span>(
+    @((await UserManager.FindByIdAsync(Model.TargetUserId)).UserName)
+    )</span>
+}
+</h2>
+<form name="sprintForm" method="get">
+    <input type="hidden" name="id" value="@Model.TargetUserId" />
+    <div class="form-group">
+        <label class="control-label">Sprint</label>
+        <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBack();"></select>    
+        <label>@(Model.SprintDays[0].ToShortDateString()) - @(Model.SprintDays[Model.SprintDays.Count - 1].ToShortDateString())</label>
+    </div>
+</form>
 <p>
-    <a asp-page="Create">Create New</a>
+    <a asp-page="Create" asp-route-id="@Model.TargetUserId" asp-route-sprintId="@Model.TargetUserId">New Time Track</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.TimeTrack[0].Issue.TaskNumber)
+                Task Number
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TimeTrack[0].SpentHours)
+                Description
+            </th>
+            @foreach (var day in Model.SprintDays)
+            {
+                <th>
+                    @day.ToString("ddd")
+                    @day.Date.Day                                         
+                </th>    
+            }
+            <th>
+                Estimation
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.TimeTrack[0].TrackingDate)
-            </th>
-            <th></th>
+                RemainingTime
+            </th>            
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.TimeTrack) {
+@foreach (var item in Model.TimeTracks) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Issue.TaskNumber)
+                @Html.DisplayFor(modelItem => item.IssueNumber)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.SpentHours)
+                @Html.DisplayFor(modelItem => item.IssueDescription)
+            </td>
+            @foreach (var loggedTime in item.LoggedTimes)
+            {
+                <td>
+                    @if (loggedTime.TimeTrackID.HasValue && loggedTime.Hours > 0)
+                    {
+                        <a asp-page="./Edit" asp-route-timeTrackId="@loggedTime.TimeTrackID">@loggedTime.Hours</a>                        
+                    }
+                </td>
+            }
+            <td>
+                
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TrackingDate)
-            </td>
-            <td>
-                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.ID">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>
-            </td>
+                
+            </td>           
         </tr>
 }
     </tbody>
 </table>
+
+<script>
+    function DoPostBack()
+    {
+        var select = document.getElementById("sprintId");
+        var option = select.options[select.selectedIndex];
+        if (option.value) {
+            // document.sprintForm.action = "/TimeTracks";
+            document.sprintForm.submit();
+        }
+    }
+</script>

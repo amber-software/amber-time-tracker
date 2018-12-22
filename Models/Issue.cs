@@ -15,6 +15,9 @@ namespace TimeTracking.Models
         public string TaskDescription { get; set; }
 
         public int SprintID { get; set; }
+
         public Sprint Sprint { get; set; }
+
+        public ICollection<TimeTrack> TimeTracks { get; set; }
     }
 }

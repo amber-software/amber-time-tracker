@@ -22,7 +22,7 @@ namespace TimeTracking.Pages
         {            
         }
 
-        public IList<TimeTrackingVM> TimeTracking { get;set; }
+        public IList<UserTracking> TimeTracking { get;set; }
         
         public async Task<IActionResult> OnGetAsync()
         {
@@ -38,20 +38,25 @@ namespace TimeTracking.Pages
                  
             var sprint = await context.Sprint
                                         .FirstOrDefaultAsync(s => s.StartDate >= nowDate && nowDate < s.StopDate);            
+            
+            Func<string, IQueryable<TimeTrack>> userTracks = 
+                                (id) => context.TimeTrack
+                                                .AsNoTracking()
+                                                .Where(t => t.OwnerID == id);
+            var users = await context.Users
+                                .AsNoTracking()
+                                .ToListAsync();
 
-            TimeTracking = await context.Users
-                            .AsNoTracking()
-                            .Select(u => new TimeTrackingVM
-                            {
-                                UserID = u.Id,
-                                UserName = u.UserName,
-                                TotalSpentHours = context.TimeTrack.Where(t => t.OwnerID == u.Id).Sum(t => t.SpentHours),
-                                // TotalRemainingHours == 0
-                            })                                                                                    
-                            .ToListAsync();
-        
-
+            TimeTracking = users.Select(u => new UserTracking()
+                                    {
+                                        UserID = u.Id,
+                                        UserName = u.UserName,
+                                        TotalSpentHours = userTracks(u.Id).Sum(t => t.SpentHours),
+                                        TimeTrackCount = userTracks(u.Id).Count()
+                                    })
+                                .ToList();
+            
             return Page();
-        }
+        }        
     }
 }
