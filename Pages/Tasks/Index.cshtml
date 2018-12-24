@@ -22,6 +22,15 @@
             <th>
                 @Html.DisplayNameFor(model => model.Issue[0].Sprint.SprintNumber)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Estimate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Remaining)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -36,6 +45,15 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Sprint.SprintNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estimate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Remaining)
             </td>
             <td>
                 <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |

@@ -17,7 +17,22 @@ namespace TimeTracking.Models
         public int SprintID { get; set; }
 
         public Sprint Sprint { get; set; }
+        
+        public int Estimate { get; set; }
+
+        public int Remaining { get; set; }
+
+        public TaskPriority Priority { get; set; }
 
         public ICollection<TimeTrack> TimeTracks { get; set; }
+    }
+
+    public enum TaskPriority
+    {
+        Lowest,
+        Low,
+        Medium,
+        High,
+        Highest        
     }
 }

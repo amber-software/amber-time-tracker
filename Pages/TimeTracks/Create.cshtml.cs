@@ -67,7 +67,7 @@ namespace TimeTracking.Pages.TimeTracks
             var targetUserId = string.IsNullOrEmpty(id) ? userManager.GetUserId(User) : id;
             if (targetIssue.TimeTracks.Any(t => t.OwnerID == targetUserId && t.TrackingDate == TimeTrack.TrackingDate))
             {
-                ModelState.AddModelError(string.Empty, $"Time for task '{targetIssue.TaskNumber}' is already set for date '{TimeTrack.TrackingDate.ToShortDateString()}'");
+                ModelState.AddModelError("TimeTrack.TrackingDate", $"Time for task '{targetIssue.TaskNumber}' is already set for date '{TimeTrack.TrackingDate.ToShortDateString()}'");
 
                 PopulateCreateTimeTrackIdentifiers(id, sprintId);            
                 PopulateIssuesDropDownList(sprint);

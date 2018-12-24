@@ -191,7 +191,10 @@ namespace TimeTracking.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TaskNumber = table.Column<string>(nullable: false),
                     TaskDescription = table.Column<string>(nullable: false),
-                    SprintID = table.Column<int>(nullable: false)
+                    SprintID = table.Column<int>(nullable: false),
+                    Estimate = table.Column<int>(nullable: false),
+                    Remaining = table.Column<int>(nullable: false),
+                    Priority = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -269,6 +272,12 @@ namespace TimeTracking.Migrations
                 name: "IX_Issue_SprintID",
                 table: "Issue",
                 column: "SprintID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Issue_TaskNumber",
+                table: "Issue",
+                column: "TaskNumber",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_TimeTrack_IssueID",

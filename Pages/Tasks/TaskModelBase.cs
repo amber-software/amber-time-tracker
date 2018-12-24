@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,6 +18,8 @@ namespace TimeTracking.Pages.Tasks
     {        
         public SelectList SprintNumberSL { get; set; }
 
+        public SelectList TaskPrioritySL { get; set; }
+
         public TaskModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
                                   UserManager<IdentityUser> userManager)
@@ -24,7 +27,15 @@ namespace TimeTracking.Pages.Tasks
         {            
         }
 
-        public void PopulateSprintsDropDownList(object selectedSprint = null)
+        public PageResult PopulateDropdownsAndShowAgain(Issue issue = null)
+        {
+            PopulateTaskPriorityDropDownList(issue?.Priority);
+            PopulateSprintsDropDownList(issue?.SprintID);
+
+            return Page();
+        }
+
+        private void PopulateSprintsDropDownList(object selectedSprint = null)
         {
             var sprintsQuery = from d in context.Sprint
                                    orderby d.SprintNumber // Sort by name.
@@ -32,6 +43,20 @@ namespace TimeTracking.Pages.Tasks
 
             SprintNumberSL = new SelectList(sprintsQuery.AsNoTracking(),
                         "ID", "SprintNumber", selectedSprint);
+        }
+
+        private void PopulateTaskPriorityDropDownList(object selectedPriority = null)
+        {
+            var values = Enum.GetValues(typeof(TaskPriority));
+
+            var priorities = new List<object>();
+            foreach (var value in values)
+            {
+                priorities.Add(new { ID = (int)value, PriorityName = value });
+            }
+
+            TaskPrioritySL = new SelectList(priorities,
+                        "ID", "PriorityName", selectedPriority);
         }
     }
 }

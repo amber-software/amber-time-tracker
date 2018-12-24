@@ -32,6 +32,9 @@ namespace TimeTracking.Models
                 .HasIndex(c => c.OwnerID);
             modelBuilder.Entity<TimeTrack>()
                 .Property(c => c.OwnerID).IsRequired();
+            modelBuilder.Entity<Issue>()
+                .HasIndex(u => u.TaskNumber)
+                .IsUnique();
         }
     }
 }

@@ -93,20 +93,22 @@ namespace TimeTracking.Pages.TimeTracks
                     trackForIssueInAnotherDate.SpentHours += TimeTrack.SpentHours;
                     
                     context.TimeTrack.Remove(trackToUpdate);
-
+                    
                     await context.SaveChangesAsync();
                     return RedirectToPage("./Index", null, new { id = targetUserId });
                     
                 }        
             }
 
-            if (await TryUpdateModelAsync<TimeTrack>(
+            if (TimeTrack.SpentHours <= 0)
+                context.TimeTrack.Remove(trackToUpdate);
+            else if (await TryUpdateModelAsync<TimeTrack>(
                  trackToUpdate,
                  "TimeTrack",   // Prefix for form value.
                    s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
             {
                 await context.SaveChangesAsync();
-                
+                                
                 return RedirectToPage($"./Index", null, new { id = targetUserId } );
             }
                         
