@@ -102,18 +102,18 @@ namespace TimeTracking.Pages.TimeTracks
 
             if (TimeTrack.SpentHours <= 0)
                 context.TimeTrack.Remove(trackToUpdate);
-            else if (await TryUpdateModelAsync<TimeTrack>(
+            else if (!await TryUpdateModelAsync<TimeTrack>(
                  trackToUpdate,
                  "TimeTrack",   // Prefix for form value.
                    s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
             {
-                await context.SaveChangesAsync();
-                                
-                return RedirectToPage($"./Index", null, new { id = targetUserId } );
+                PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);    
+                return Page();
+                
             }
                         
-            PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);
-            return Page();
+            await context.SaveChangesAsync();                                
+            return RedirectToPage($"./Index", null, new { id = targetUserId } );            
         }        
     }
 }

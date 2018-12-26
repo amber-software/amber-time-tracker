@@ -45,7 +45,7 @@ namespace TimeTracking.Pages.Sprints
             }
 
             var isAuthorized = await authorizationService.AuthorizeAsync(
-                                                      User, Sprint,
+                                                      User, new Sprint(),
                                                       SprintsOperations.EditSprints);
             if (!isAuthorized.Succeeded)
             {

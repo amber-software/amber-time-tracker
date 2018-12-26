@@ -22,7 +22,7 @@
     </div>
 </form>
 <p>
-    <a asp-page="Create" asp-route-id="@Model.TargetUserId" asp-route-sprintId="@Model.TargetUserId">New Time Track</a>
+    <a asp-page="Create" asp-route-id="@Model.TargetUserId" asp-route-id="@Model.TargetUserId" asp-route-sprintId="@Model.TargetSprintId">New Time Track</a>
 </p>
 <table class="table">
     <thead>
@@ -33,6 +33,12 @@
             <th>
                 Description
             </th>
+            <th>
+                Estimation
+            </th>
+            <th>
+                RemainingTime
+            </th>            
             @foreach (var day in Model.SprintDays)
             {
                 <th>
@@ -41,15 +47,12 @@
                 </th>    
             }
             <th>
-                Estimation
-            </th>
-            <th>
-                RemainingTime
-            </th>            
+                Total
+            </th>                        
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model.TimeTracks) {
+@foreach (var item in Model.SpentTimes) {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.IssueNumber)
@@ -57,23 +60,44 @@
             <td>
                 @Html.DisplayFor(modelItem => item.IssueDescription)
             </td>
+            <td>
+                @item.Estimate
+            </td>
+            <td>
+                @item.RemainingTime
+            </td>                       
+            @{float totalTaskHours = 0f;}
             @foreach (var loggedTime in item.LoggedTimes)
-            {
+            {                
                 <td>
                     @if (loggedTime.TimeTrackID.HasValue && loggedTime.Hours > 0)
                     {
+                        totalTaskHours += loggedTime.Hours ?? 0;
+
                         <a asp-page="./Edit" asp-route-timeTrackId="@loggedTime.TimeTrackID">@loggedTime.Hours</a>                        
                     }
                 </td>
             }
             <td>
-                
-            </td>
-            <td>
-                
-            </td>           
+                @totalTaskHours                
+            </td>                       
         </tr>
 }
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>
+                Total
+            </td>
+            @for (var i = 0; i < Model.SprintDays.Count; i++)
+            {
+                <td>
+                    @Model.SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)
+                </td>
+            }
+            <td></td>
+        </tr>
     </tbody>
 </table>
 

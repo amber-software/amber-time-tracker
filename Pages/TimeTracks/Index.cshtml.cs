@@ -23,7 +23,7 @@ namespace TimeTracking.Pages.TimeTracks
         {            
         }
 
-        public IList<IssueTrack> TimeTracks { get;set; }
+        public IList<IssueTrack> SpentTimes { get;set; }
 
         public IList<DateTime> SprintDays { get; set; }
                 
@@ -47,24 +47,25 @@ namespace TimeTracking.Pages.TimeTracks
                                                         .Select(offset => sprint.StartDate.AddDays(offset))
                                                         .ToList();
 
-            TimeTracks = sprint.Issues
+            SpentTimes = sprint.Issues
                             .Where(i => i.TimeTracks.Any(t => t.OwnerID == targetUserId))
                             .Select(i => new IssueTrack()
                             {
                                 IssueNumber = i.TaskNumber,
                                 IssueDescription = i.TaskDescription,
-                                Estimate = 0,
-                                RemainingTime = 0,
+                                Estimate = i.Estimate,
+                                RemainingTime = i.Remaining,
                                 LoggedTimes = GetIssueSpentTimesByDays(targetUserId, i, SprintDays)
                             })                            
                             .ToList();            
 
             TargetUserId = id;
+            TargetSprintId = sprintId;
             PopulateSprintsDropDownList(sprint.ID);
             return Page();
         }
 
-        private IEnumerable<TimeTrackLogTime> GetIssueSpentTimesByDays(string targetUserId, Issue issue, IEnumerable<DateTime> days)
+        private IList<TimeTrackLogTime> GetIssueSpentTimesByDays(string targetUserId, Issue issue, IEnumerable<DateTime> days)
         {
             var spentTimes = new List<TimeTrackLogTime>();
             foreach (var date in days)

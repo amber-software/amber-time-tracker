@@ -14,7 +14,7 @@ namespace TimeTracking.Models
 
         public float RemainingTime { get; set; }                
 
-        public IEnumerable<TimeTrackLogTime> LoggedTimes { get; set; }        
+        public IList<TimeTrackLogTime> LoggedTimes { get; set; }        
     }
 
     public class TimeTrackLogTime
