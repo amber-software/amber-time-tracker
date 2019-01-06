@@ -211,6 +211,8 @@ namespace TimeTracking.Migrations
 
                     b.Property<int>("SprintID");
 
+                    b.Property<int>("Status");
+
                     b.Property<string>("TaskDescription")
                         .IsRequired();
 

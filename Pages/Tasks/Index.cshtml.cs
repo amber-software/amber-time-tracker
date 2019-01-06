@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using TimeTracking.Pages;
 using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
 {
@@ -16,8 +17,9 @@ namespace TimeTracking.Pages.Tasks
     {
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
-                          UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)
+                          UserManager<IdentityUser> userManager,
+                          ISprintsService sprintsService)
+                                  : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 

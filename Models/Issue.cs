@@ -22,17 +22,10 @@ namespace TimeTracking.Models
 
         public int Remaining { get; set; }
 
+        public Status Status { get; set; }
+
         public TaskPriority Priority { get; set; }
 
         public ICollection<TimeTrack> TimeTracks { get; set; }
-    }
-
-    public enum TaskPriority
-    {
-        Lowest,
-        Low,
-        Medium,
-        High,
-        Highest        
     }
 }

@@ -11,6 +11,7 @@ using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
 using TimeTracking.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.TimeTracks
 {
@@ -18,8 +19,9 @@ namespace TimeTracking.Pages.TimeTracks
     {
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
-                           UserManager<IdentityUser> userManager) 
-                           : base(context, authorizationService, userManager)
+                           UserManager<IdentityUser> userManager,
+                           ISprintsService sprintsService) 
+                           : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 
@@ -40,7 +42,7 @@ namespace TimeTracking.Pages.TimeTracks
 
             var targetUserId = string.IsNullOrEmpty(id) ? userManager.GetUserId(User) : id;
 
-            var sprint = await GetTargetSprintOrCurrentSprint(sprintId);
+            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);
 
             SprintDays = Enumerable.Range(0, 1 + sprint.StopDate
                                                         .Subtract(sprint.StartDate).Days)
@@ -61,7 +63,7 @@ namespace TimeTracking.Pages.TimeTracks
 
             TargetUserId = id;
             TargetSprintId = sprintId;
-            PopulateSprintsDropDownList(sprint.ID);
+            await PopulateSprintsDropDownList(sprint.ID);
             return Page();
         }
 

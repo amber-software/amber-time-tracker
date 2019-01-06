@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
 {
@@ -17,8 +18,9 @@ namespace TimeTracking.Pages.Tasks
     {
         public EditModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
-                          UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)
+                          UserManager<IdentityUser> userManager,
+                          ISprintsService sprintsService)
+                                  : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 
@@ -49,14 +51,14 @@ namespace TimeTracking.Pages.Tasks
                 return PopulateDropdownsAndShowAgain(Issue);
             }
 
-            context.Attach(Issue).State = EntityState.Modified;
+            //context.Attach(Issue).State = EntityState.Modified;
 
             var trackToUpdate = await context.Issue.FindAsync(id);
 
             if (await TryUpdateModelAsync<Issue>(
                  trackToUpdate,
                  "Issue",   // Prefix for form value.
-                 s => s.SprintID, s => s.TaskNumber, s => s.TaskDescription, s => s.Priority, s => s.Estimate, s => s.Remaining))
+                 s => s.SprintID, s => s.TaskNumber, s => s.TaskDescription, s => s.Priority, s => s.Estimate, s => s.Remaining, s => s.Status))
             {
                 try
                 {

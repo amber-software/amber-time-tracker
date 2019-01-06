@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.TimeTracks
 {
@@ -17,8 +18,9 @@ namespace TimeTracking.Pages.TimeTracks
     {        
         public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
-                           UserManager<IdentityUser> userManager) 
-                           : base(context, authorizationService, userManager)
+                           UserManager<IdentityUser> userManager,
+                           ISprintsService sprintsService) 
+                           : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 
@@ -33,7 +35,7 @@ namespace TimeTracking.Pages.TimeTracks
                 ! await AllowedToEditTimeTracksOfAnother())
                 return new ChallengeResult();
 
-            var sprint = await GetTargetSprintOrCurrentSprint(sprintId);           
+            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);
 
             // Set data for creation
             PopulateCreateTimeTrackIdentifiers(id, sprintId);            
@@ -50,7 +52,7 @@ namespace TimeTracking.Pages.TimeTracks
                 ! await AllowedToEditTimeTracksOfAnother())
                 return new ChallengeResult();
 
-            var sprint = await GetTargetSprintOrCurrentSprint(sprintId);           
+            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);           
 
             if (!ModelState.IsValid)
             {

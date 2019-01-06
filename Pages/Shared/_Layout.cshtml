@@ -34,12 +34,13 @@
                                                     User, new TimeTrack(),
                                                     TimeTracksOperations.ViewStatistics)).Succeeded)
                     {
-                        <li><a asp-page="/TimeTracks/Index">Tracking</a></li>                                        
+                        <li><a asp-page="/TimeTracks/Index">Tracking</a></li>
+                        <li><a asp-page="/Reports/Index">Report</a></li>
                     }
                     
                     <li><a asp-page="/Tasks/Index">Tasks</a></li>
                     <li><a asp-page="/Sprints/Index">Sprints</a></li>
-                    <li><a asp-page="/BusinessConstants/Index">Constants</a></li>
+                    <!--li><a asp-page="/BusinessConstants/Index">Constants</a></li-->
                 </ul>
                 <partial name="_LoginPartial" />
             </div>

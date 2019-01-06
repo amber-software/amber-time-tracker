@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
 {
@@ -17,8 +18,9 @@ namespace TimeTracking.Pages.Tasks
     {
         public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
-                          UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)
+                          UserManager<IdentityUser> userManager,
+                          ISprintsService sprintsService)
+                                  : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 

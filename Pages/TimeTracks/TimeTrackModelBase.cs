@@ -11,6 +11,7 @@ using TimeTracking.Pages;
 using TimeTracking.Models;
 using TimeTracking.Authorization;
 using Microsoft.AspNetCore.Authorization;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.TimeTracks
 {    
@@ -22,12 +23,13 @@ namespace TimeTracking.Pages.TimeTracks
 
         public SelectList IssueNameSL { get; set; }      
 
-        public SelectList SprintsSL { get; set; }  
+        public SelectList SprintsSL { get; set; }
 
         public TimeTrackModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
-                                  UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)
+                                  UserManager<IdentityUser> userManager,
+                                  ISprintsService sprintsService)
+                                  : base(context, authorizationService, userManager, sprintsService)
         {
         }
 
@@ -44,28 +46,12 @@ namespace TimeTracking.Pages.TimeTracks
                         "ID", "TaskNumber", selectedIssue);
         }
 
-        protected void PopulateSprintsDropDownList(object selectedSprint = null)
+        protected async Task PopulateSprintsDropDownList(object selectedSprint = null)
         {            
-            SprintsSL = new SelectList(sprintsQuery.AsNoTracking(),
+            SprintsSL = new SelectList(await sprintsService.GetAllSprints(),
                         "ID", "SprintNumber", selectedSprint);
-        }        
+        }                
 
-        protected IQueryable<Sprint> sprintsQuery => from sp in context.Sprint.Include(s => s.Issues).ThenInclude(i => i.TimeTracks)
-                                                    orderby sp.StartDate descending // Sort by name.
-                                                    select sp;
-
-        protected async Task<Sprint> GetTargetSprintOrCurrentSprint(int? sprintId)
-        {
-            var nowDate = DateTime.Now.Date;            
-
-            var sprint = sprintId.HasValue ?
-                            await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.ID == sprintId) :
-                            await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.StartDate <= nowDate && nowDate < s.StopDate);
-
-            if (sprint == null)
-                throw new ApplicationException("There is no suitable sprint in database!");
-
-            return sprint;
-        }
+        
     }
 }

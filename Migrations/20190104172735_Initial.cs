@@ -194,6 +194,7 @@ namespace TimeTracking.Migrations
                     SprintID = table.Column<int>(nullable: false),
                     Estimate = table.Column<int>(nullable: false),
                     Remaining = table.Column<int>(nullable: false),
+                    Status = table.Column<int>(nullable: false),
                     Priority = table.Column<int>(nullable: false)
                 },
                 constraints: table =>

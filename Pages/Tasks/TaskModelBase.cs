@@ -11,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using TimeTracking.Pages;
 using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.ComponentModel;
+using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
 {    
@@ -20,10 +22,13 @@ namespace TimeTracking.Pages.Tasks
 
         public SelectList TaskPrioritySL { get; set; }
 
+        public SelectList StatusesSL { get; set; }
+
         public TaskModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
-                                  UserManager<IdentityUser> userManager)
-                                  : base(context, authorizationService, userManager)
+                                  UserManager<IdentityUser> userManager,
+                                  ISprintsService sprintsService)
+                                  : base(context, authorizationService, userManager, sprintsService)
         {            
         }
 
@@ -31,6 +36,7 @@ namespace TimeTracking.Pages.Tasks
         {
             PopulateTaskPriorityDropDownList(issue?.Priority);
             PopulateSprintsDropDownList(issue?.SprintID);
+            PopulateTaskStatusDropdownList(issue?.Status);
 
             return Page();
         }
@@ -57,6 +63,29 @@ namespace TimeTracking.Pages.Tasks
 
             TaskPrioritySL = new SelectList(priorities,
                         "ID", "PriorityName", selectedPriority);
+        }
+
+        private void PopulateTaskStatusDropdownList(object selectedStatus = null)
+        {
+            var statusType = typeof(Status);
+            var values = Enum.GetValues(statusType);
+
+            var statuses = new List<object>();
+            foreach (var value in values)
+            {
+                var memInfo = statusType.GetMember(statusType.GetEnumName(value));
+                 var descriptionAttribute = memInfo[0]
+                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                    .FirstOrDefault() as DescriptionAttribute;
+
+                if (descriptionAttribute != null)
+                {
+                    statuses.Add(new { ID = (int)value, StatusName = descriptionAttribute.Description });
+                }
+            }
+
+            StatusesSL = new SelectList(statuses,
+                        "ID", "StatusName", selectedStatus);
         }
     }
 }

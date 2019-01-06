@@ -10,7 +10,7 @@ using TimeTracking.Models;
 namespace TimeTracking.Migrations
 {
     [DbContext(typeof(TimeTrackDataContext))]
-    [Migration("20181223140433_Initial")]
+    [Migration("20190104172735_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -212,6 +212,8 @@ namespace TimeTracking.Migrations
                     b.Property<int>("Remaining");
 
                     b.Property<int>("SprintID");
+
+                    b.Property<int>("Status");
 
                     b.Property<string>("TaskDescription")
                         .IsRequired();

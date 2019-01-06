@@ -12,7 +12,11 @@ namespace TimeTracking.Models
         
         public float Estimate { get; set; }                
 
-        public float RemainingTime { get; set; }                
+        public float RemainingTime { get; set; }
+
+        public TaskPriority Priority { get; set; }
+
+        public Status Status { get; set; }
 
         public IList<TimeTrackLogTime> LoggedTimes { get; set; }        
     }

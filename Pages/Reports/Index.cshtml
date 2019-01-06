@@ -1,29 +1,31 @@
 @page
-@model TimeTracking.Pages.TimeTracks.IndexModel
+@model TimeTracking.Pages.Reports.IndexModel
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Report";
 }
 
-<h2>Time Tracks
-@if (Model.TargetUserId != null && UserManager.GetUserId(User) != Model.TargetUserId)
-{
-    <span>(
-    @((await UserManager.FindByIdAsync(Model.TargetUserId)).UserName)
-    )</span>
-}
-</h2>
-<form name="sprintForm" method="get">
-    <input type="hidden" name="id" value="@Model.TargetUserId" />
+<h2>Report</h2>
+<form name="selectSprintForm" method="GET">    
     <div class="form-group">
         <label class="control-label">Sprint</label>
-        <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBack();"></select>    
-        <label>@(Model.SprintDays[0].ToShortDateString()) - @(Model.SprintDays[Model.SprintDays.Count - 1].ToShortDateString())</label>
+        <select id="sprintId" name="id" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
+            <option>--You can select Sprint--</option>
+        </select>
+        @if (Model.TargetSprintId.HasValue)
+        {
+            <label>@(Model.ReportDays[0].ToShortDateString()) - @(Model.ReportDays[Model.ReportDays.Count - 1].ToShortDateString())</label>
+        }
     </div>
 </form>
-<p>
-    <a asp-page="Create" asp-route-id="@Model.TargetUserId" asp-route-id="@Model.TargetUserId" asp-route-sprintId="@Model.TargetSprintId">New Time Track</a>
-</p>
+<form name="selectDatesForm" method="GET">
+    
+        <label asp-for="StartDate"></label>
+        <input asp-for="StartDate" type="Date" onchange="DoPostBackByDates();"/>
+        <label asp-for="StopDate"></label>
+        <input asp-for="StopDate"type="Date" onchange="DoPostBackByDates();"/>
+    
+</form>
 <table class="table">
     <thead>
         <tr>
@@ -34,12 +36,18 @@
                 Description
             </th>
             <th>
+                Priority
+            </th>
+            <th>
                 Estimation
             </th>
             <th>
                 RemainingTime
-            </th>            
-            @foreach (var day in Model.SprintDays)
+            </th>       
+            <th>
+                Status
+            </th>     
+            @foreach (var day in Model.ReportDays)
             {
                 <th>
                     @day.ToString("ddd")
@@ -52,6 +60,7 @@
         </tr>
     </thead>
     <tbody>
+@{float totalHours = 0f;}
 @foreach (var item in Model.SpentTimes) {
         <tr>
             <td>
@@ -61,11 +70,17 @@
                 @Html.DisplayFor(modelItem => item.IssueDescription)
             </td>
             <td>
+                @item.Priority
+            </td>
+            <td>
                 @item.Estimate
             </td>
             <td>
                 @item.RemainingTime
-            </td>                       
+            </td>
+            <td>
+                @item.Status
+            </td>
             @{float totalTaskHours = 0f;}
             @foreach (var loggedTime in item.LoggedTimes)
             {                
@@ -74,40 +89,54 @@
                     {
                         totalTaskHours += loggedTime.Hours ?? 0;
 
-                        <a asp-page="./Edit" asp-route-timeTrackId="@loggedTime.TimeTrackID">@loggedTime.Hours</a>                        
+                        @loggedTime.Hours
                     }
                 </td>
             }
             <td>
-                @totalTaskHours                
+                @totalTaskHours
+
+                @{totalHours += totalTaskHours;}
             </td>                       
         </tr>
 }
         <tr>
             <td></td>
-            <td></td>
-            <td></td>
+            <td></td>            
             <td>
                 Total
             </td>
-            @for (var i = 0; i < Model.SprintDays.Count; i++)
+            <td> 
+                @Model.SpentTimes.Sum(t => t.Estimate)
+            </td>
+            <td>           
+                @Model.SpentTimes.Sum(t => t.RemainingTime)
+            </td>
+            <td>                
+            </td>
+            @for (var i = 0; i < Model.ReportDays.Count; i++)
             {
                 <td>
                     @Model.SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)
                 </td>
             }
-            <td></td>
+            <td>
+                @totalHours
+            </td>
         </tr>
     </tbody>
 </table>
 
 <script>
-    function DoPostBack()
-    {
+    function DoPostBackBySprint() {
         var select = document.getElementById("sprintId");
         var option = select.options[select.selectedIndex];
         if (option.value) {            
-            document.sprintForm.submit();
+            document.selectSprintForm.submit();
         }
+    }
+
+    function DoPostBackByDates() {
+        document.selectDatesForm.submit();
     }
 </script>
