@@ -7,13 +7,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Sprints
 {
-    public class CreateModel : PageModelBase
+    public class CreateModel : SprintsModelBase
     {        
         public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
@@ -53,6 +54,11 @@ namespace TimeTracking.Pages.Sprints
             {
                 return new ChallengeResult();
             }
+
+            if (!await CheckSprintDates(Sprint))
+            {                
+                return Page();
+            }            
 
             context.Sprint.Add(Sprint);
             await context.SaveChangesAsync();

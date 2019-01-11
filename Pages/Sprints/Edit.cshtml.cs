@@ -14,7 +14,7 @@ using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Sprints
 {
-    public class EditModel : PageModelBase
+    public class EditModel : SprintsModelBase
     {        
         public EditModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
@@ -58,13 +58,18 @@ namespace TimeTracking.Pages.Sprints
                 return Page();
             }
 
+            if (!await CheckSprintDates(Sprint))
+            {                
+                return Page();
+            }
+
             var isAuthorized = await authorizationService.AuthorizeAsync(
                                                       User, Sprint,
                                                       SprintsOperations.EditSprints);
             if (!isAuthorized.Succeeded)
             {
                 return new ChallengeResult();
-            }
+            }             
 
             context.Attach(Sprint).State = EntityState.Modified;
 
