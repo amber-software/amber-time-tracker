@@ -85,7 +85,8 @@ namespace TimeTracking.Models
             {
                 TaskNumber = "VIR-1",
                 TaskDescription = "Some task to test",
-                Sprint = testSprint
+                Sprint = testSprint,
+                Platform = Platform.OSX
             };
 
             context.TimeTrack.AddRange(            
@@ -94,9 +95,20 @@ namespace TimeTracking.Models
                     SpentHours = 1.2f,
                     TrackingDate = DateTime.Now.Date,
                     OwnerID = adminID,
-                    Issue = testTask
+                    Issue = testTask,
+                    Platform = Platform.Windows
                 }                
-            );            
+            );
+
+            var testTask2 = new Issue
+            {
+                TaskNumber = "VIR-2",
+                TaskDescription = "Some task without sprint",
+                Sprint = null,
+                Platform = Platform.WindowsAndOSX
+            };
+
+            context.Issue.AddRange(testTask2);
 
             context.BusinessConstant.AddRange(
                 new BusinessConstant

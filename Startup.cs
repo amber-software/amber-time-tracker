@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using TimeTracking.Authorization;
 using TimeTracking.Services.Sprints;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking
 {
@@ -83,6 +84,7 @@ namespace TimeTracking
                                   TimeTrackAdministratorsAuthorizationHandler>();
 
             services.AddTransient<ISprintsService, SprintsService>();
+            services.AddTransient<IIssueService, IssueService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

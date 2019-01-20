@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.TimeTracks
@@ -19,12 +20,13 @@ namespace TimeTracking.Pages.TimeTracks
         public EditModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
                            UserManager<IdentityUser> userManager,
-                           ISprintsService sprintsService) 
-                           : base(context, authorizationService, userManager, sprintsService)
+                           ISprintsService sprintsService,
+                           IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
-        private IQueryable<TimeTrack> timeTrackQuery => from tt in context.TimeTrack.Include(t => t.Issue).ThenInclude(i => i.Sprint)                                                        
+        private IQueryable<TimeTrack> timeTrackQuery => from tt in context.TimeTrack.Include(t => t.Issue).ThenInclude(i => i.Sprint)
                                                         select tt;
 
         [BindProperty]
@@ -52,9 +54,7 @@ namespace TimeTracking.Pages.TimeTracks
 
 
             // Set data for editing
-            PopulateIssuesDropDownList(TimeTrack.Issue.Sprint);
-
-            return Page();
+            return await PopulateDropdownsAndShowPage(TimeTrack.OwnerID, TimeTrack.Issue.Sprint?.ID, TimeTrack.IssueID, TimeTrack.Platform);
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -79,8 +79,7 @@ namespace TimeTracking.Pages.TimeTracks
             
             if (!ModelState.IsValid)
             {                
-                PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);
-                return Page();
+                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID, trackToUpdate.Platform);                
             }
             
             if (TimeTrack.TrackingDate != trackToUpdate.TrackingDate)
@@ -107,11 +106,9 @@ namespace TimeTracking.Pages.TimeTracks
             else if (!await TryUpdateModelAsync<TimeTrack>(
                  trackToUpdate,
                  "TimeTrack",   // Prefix for form value.
-                   s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
+                   s => s.IssueID, s => s.SpentHours, s => s.TrackingDate, s => s.Description))
             {
-                PopulateIssuesDropDownList(trackToUpdate.Issue.Sprint, TimeTrack.IssueID);    
-                return Page();
-                
+                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID, trackToUpdate.Platform);                                
             }
                         
             await context.SaveChangesAsync();                                

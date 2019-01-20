@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
@@ -19,14 +20,15 @@ namespace TimeTracking.Pages.Tasks
         public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager,
-                          ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                          ISprintsService sprintsService,
+                          IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
         public  IActionResult OnGet()
         {
-            return PopulateDropdownsAndShowAgain();
+            return PopulateDropdownsAndShowPage();
         }
 
         [BindProperty]
@@ -36,7 +38,7 @@ namespace TimeTracking.Pages.Tasks
         {
             if (!ModelState.IsValid)
             {
-                return PopulateDropdownsAndShowAgain(Issue);
+                return PopulateDropdownsAndShowPage(Issue);
             }
 
             var emptyTask = new Issue();
@@ -62,7 +64,7 @@ namespace TimeTracking.Pages.Tasks
                                 var error = $"Cannot create Task with duplicated number '{Issue.TaskNumber}'";
                                 ModelState.AddModelError("Issue.TaskNumber", error);
 
-                                return PopulateDropdownsAndShowAgain(Issue);
+                                return PopulateDropdownsAndShowPage(Issue);
                            default:
                               throw;
                         }
@@ -71,7 +73,7 @@ namespace TimeTracking.Pages.Tasks
                 return RedirectToPage("./Index");
             }
 
-            return PopulateDropdownsAndShowAgain(Issue);
+            return PopulateDropdownsAndShowPage(Issue);
         }
     }
 }

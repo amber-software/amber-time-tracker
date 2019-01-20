@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Authorization;
 using TimeTracking.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using TimeTracking.Services.Sprints;
+using System.ComponentModel.DataAnnotations;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking.Pages.TimeTracks
 {
@@ -20,16 +22,23 @@ namespace TimeTracking.Pages.TimeTracks
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
                            UserManager<IdentityUser> userManager,
-                           ISprintsService sprintsService) 
-                           : base(context, authorizationService, userManager, sprintsService)
+                           ISprintsService sprintsService,
+                           IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
         public IList<IssueTrack> SpentTimes { get;set; }
 
-        public IList<DateTime> SprintDays { get; set; }
+        public IList<DateTime> SelectedDays { get; set; }
+
+        [Display(Name = "From")]
+        public DateTime? StartDate { get; set; }
+
+        [Display(Name = "To")]
+        public DateTime? StopDate { get; set; }
                 
-        public async Task<IActionResult> OnGetAsync(string id, int? sprintId)
+        public async Task<IActionResult> OnGetAsync(string id, int? sprintId, DateTime? startDate, DateTime? stopDate)
         {
             if (!string.IsNullOrEmpty(id) &&
                 !(await authorizationService.AuthorizeAsync(
@@ -40,31 +49,50 @@ namespace TimeTracking.Pages.TimeTracks
                 return new ChallengeResult();
             }
 
-            var targetUserId = string.IsNullOrEmpty(id) ? userManager.GetUserId(User) : id;
+            var targetUserId = string.IsNullOrEmpty(id) ? userManager.GetUserId(User) : id;            
 
-            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);
+            var sprint = await sprintsService.GetTargetSprint(sprintId);
+            if (startDate.HasValue && stopDate.HasValue)
+            {
+                StartDate = startDate;
+                StopDate = stopDate;
+            }
+            else if (sprint != null)
+            {
+                StartDate = sprint.StartDate;
+                StopDate = sprint.StopDate;
+            }
+            else
+            {
+                var thisWeekStart = DateTime.Now.Date;
+                while (thisWeekStart.DayOfWeek != DayOfWeek.Monday)
+                    thisWeekStart = thisWeekStart.AddDays(-1);
 
-            SprintDays = Enumerable.Range(0, 1 + sprint.StopDate
-                                                        .Subtract(sprint.StartDate).Days)
-                                                        .Select(offset => sprint.StartDate.AddDays(offset))
+                StartDate = thisWeekStart;
+                StopDate = thisWeekStart.AddDays(6);
+            }
+
+            SelectedDays = Enumerable.Range(0, 1 + StopDate.Value
+                                                        .Subtract(StartDate.Value).Days)
+                                                        .Select(offset => StartDate.Value.AddDays(offset))
                                                         .ToList();
 
-            SpentTimes = sprint.Issues
-                            .Where(i => i.TimeTracks.Any(t => t.OwnerID == targetUserId))
+            var issues = sprint?.Issues ?? await issueService.GetAllIssues();
+            SpentTimes = issues
+                            .Where(i => i.TimeTracks.Any(t => t.OwnerID == targetUserId && 
+                                                              t.TrackingDate >= StartDate.Value && 
+                                                              t.TrackingDate <= StopDate.Value))
                             .Select(i => new IssueTrack()
                             {
                                 IssueNumber = i.TaskNumber,
                                 IssueDescription = i.TaskDescription,
                                 Estimate = i.Estimate,
                                 RemainingTime = i.Remaining,
-                                LoggedTimes = GetIssueSpentTimesByDays(targetUserId, i, SprintDays)
+                                LoggedTimes = GetIssueSpentTimesByDays(targetUserId, i, SelectedDays)
                             })                            
                             .ToList();            
-
-            TargetUserId = id;
-            TargetSprintId = sprintId;
-            await PopulateSprintsDropDownList(sprint.ID);
-            return Page();
+            
+            return await PopulateDropdownsAndShowPage(id, sprintId);
         }
 
         private IList<TimeTrackLogTime> GetIssueSpentTimesByDays(string targetUserId, Issue issue, IEnumerable<DateTime> days)

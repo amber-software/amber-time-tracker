@@ -191,11 +191,12 @@ namespace TimeTracking.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     TaskNumber = table.Column<string>(nullable: false),
                     TaskDescription = table.Column<string>(nullable: false),
-                    SprintID = table.Column<int>(nullable: false),
+                    SprintID = table.Column<int>(nullable: true),
                     Estimate = table.Column<int>(nullable: false),
                     Remaining = table.Column<int>(nullable: false),
                     Status = table.Column<int>(nullable: false),
-                    Priority = table.Column<int>(nullable: false)
+                    Priority = table.Column<int>(nullable: false),
+                    Platform = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -205,7 +206,7 @@ namespace TimeTracking.Migrations
                         column: x => x.SprintID,
                         principalTable: "Sprint",
                         principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -217,7 +218,9 @@ namespace TimeTracking.Migrations
                     SpentHours = table.Column<float>(nullable: false),
                     TrackingDate = table.Column<DateTime>(nullable: false),
                     IssueID = table.Column<int>(nullable: false),
-                    OwnerID = table.Column<string>(nullable: false)
+                    OwnerID = table.Column<string>(nullable: false),
+                    Description = table.Column<string>(nullable: true),
+                    Platform = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

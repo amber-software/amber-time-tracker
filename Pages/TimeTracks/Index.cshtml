@@ -17,9 +17,16 @@
     <input type="hidden" name="id" value="@Model.TargetUserId" />
     <div class="form-group">
         <label class="control-label">Sprint</label>
-        <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBack();"></select>    
-        <label>@(Model.SprintDays[0].ToShortDateString()) - @(Model.SprintDays[Model.SprintDays.Count - 1].ToShortDateString())</label>
+        <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
+            <option>--You can select Sprint--</option>
+        </select>            
     </div>
+</form>
+<form name="selectDatesForm" method="GET">    
+        <label asp-for="StartDate"></label>
+        <input asp-for="StartDate" type="Date" onchange="DoPostBackByDates();"/>
+        <label asp-for="StopDate"></label>
+        <input asp-for="StopDate"type="Date" onchange="DoPostBackByDates();"/>    
 </form>
 <p>
     <a asp-page="Create" asp-route-id="@Model.TargetUserId" asp-route-id="@Model.TargetUserId" asp-route-sprintId="@Model.TargetSprintId">New Time Track</a>
@@ -39,7 +46,7 @@
             <th>
                 RemainingTime
             </th>            
-            @foreach (var day in Model.SprintDays)
+            @foreach (var day in Model.SelectedDays)
             {
                 <th>
                     @day.ToString("ddd")
@@ -90,7 +97,7 @@
             <td>
                 Total
             </td>
-            @for (var i = 0; i < Model.SprintDays.Count; i++)
+            @for (var i = 0; i < Model.SelectedDays.Count; i++)
             {
                 <td>
                     @Model.SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)
@@ -102,12 +109,16 @@
 </table>
 
 <script>
-    function DoPostBack()
+    function DoPostBackBySprint()
     {
         var select = document.getElementById("sprintId");
         var option = select.options[select.selectedIndex];
         if (option.value) {            
             document.sprintForm.submit();
         }
+    }
+
+    function DoPostBackByDates() {
+        document.selectDatesForm.submit();
     }
 </script>

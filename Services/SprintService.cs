@@ -25,15 +25,15 @@ namespace TimeTracking.Services.Sprints
             return await sprintsQuery.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Sprint> GetTargetSprintOrCurrentSprint(int? sprintId)
+        public async Task<Sprint> GetTargetSprint(int? sprintId)
+        {            
+            return await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.ID == sprintId);                                        
+        }
+
+        public async Task<Sprint> GetCurrentSprint()
         {
             var nowDate = DateTime.Now.Date;            
-            var sprint = sprintId.HasValue ?
-                            await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.ID == sprintId) :
-                            await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.StartDate <= nowDate && nowDate < s.StopDate);
-            if (sprint == null)
-                throw new ApplicationException("There is no suitable sprint in database!");
-            return sprint;
+            return await sprintsQuery.AsNoTracking().FirstOrDefaultAsync(s => s.StartDate <= nowDate && nowDate < s.StopDate);
         }
     }
 }

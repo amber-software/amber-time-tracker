@@ -12,6 +12,8 @@ using TimeTracking.Models;
 using TimeTracking.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using TimeTracking.Services.Sprints;
+using System.ComponentModel;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking.Pages.TimeTracks
 {    
@@ -19,17 +21,22 @@ namespace TimeTracking.Pages.TimeTracks
     {                
         public int? TargetSprintId { get; set; }
 
-        public string TargetUserId { get; set; }   
+        public int? TargetPlatformId { get; set; }
+
+        public string TargetUserId { get; set; }
 
         public SelectList IssueNameSL { get; set; }      
 
         public SelectList SprintsSL { get; set; }
 
+        public SelectList PlatformsSL { get; set; }
+        
         public TimeTrackModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
                                   UserManager<IdentityUser> userManager,
-                                  ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                                  ISprintsService sprintsService,
+                                  IIssueService issueService) 
+                                    : base(context, authorizationService, userManager, sprintsService, issueService)
         {
         }
 
@@ -40,18 +47,56 @@ namespace TimeTracking.Pages.TimeTracks
                                                       TimeTracksOperations.EditTimeTracksOfOthers)).Succeeded;
         }        
 
-        protected void PopulateIssuesDropDownList(Sprint sprint, object selectedIssue = null)
-        {            
-            IssueNameSL = new SelectList(sprint.Issues.OrderBy(i => i.TaskNumber),
-                        "ID", "TaskNumber", selectedIssue);
+        private void PopulateIssuesDropDownList(IEnumerable<Sprint> allSprints, int? selectedSprintId, int? selectedIssueId = null)
+        {
+            var selectedSprint = allSprints.FirstOrDefault(s => s.ID == selectedSprintId);
+            var issues = selectedSprint?.Issues ?? 
+                                context.Issue.AsNoTracking().ToArray();
+            IssueNameSL = new SelectList(issues.OrderBy(i => i.TaskNumber),
+                        "ID", "TaskNumber", selectedIssueId);
         }
 
-        protected async Task PopulateSprintsDropDownList(object selectedSprint = null)
-        {            
-            SprintsSL = new SelectList(await sprintsService.GetAllSprints(),
-                        "ID", "SprintNumber", selectedSprint);
-        }                
+        private void PopulateSprintsDropDownList(IEnumerable<Sprint> allSprints, int? selectedSprintId)
+        {
+            var selectedSprint = allSprints.FirstOrDefault(s => s.ID == selectedSprintId);
+            SprintsSL = new SelectList(allSprints, "ID", "SprintNumber", selectedSprintId);
+        }
 
-        
+        private void PopulatePlatforms(Platform? selectedPlatform = null)
+        {
+            var platformType = typeof(Platform);
+            var values = Enum.GetValues(platformType);
+
+            var platforms = new List<object>();
+            foreach (var value in values)
+            {
+                var memInfo = platformType.GetMember(platformType.GetEnumName(value));
+                 var descriptionAttribute = memInfo[0]
+                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
+                    .FirstOrDefault() as DescriptionAttribute;
+
+                if (descriptionAttribute != null)
+                {
+                    platforms.Add(new { ID = (int)value, PlatformName = value });
+                }
+            }
+
+            PlatformsSL = new SelectList(platforms,
+                        "ID", "PlatformName", selectedPlatform);
+        }
+
+        public async Task<PageResult> PopulateDropdownsAndShowPage(string userId, int? sprintId, int? selectedIssueId = null, Platform? platform = null)
+        {
+            TargetSprintId = sprintId;
+            TargetUserId = userId;
+            
+            var allSprints = await sprintsService.GetAllSprints();            
+            PopulateSprintsDropDownList(allSprints, sprintId);
+            PopulateIssuesDropDownList(allSprints, sprintId, selectedIssueId);
+            
+            PopulatePlatforms(platform);
+
+            return Page();
+        }
     }
 }

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
@@ -17,8 +18,9 @@ namespace TimeTracking.Pages.Tasks
         public DetailsModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager,
-                          ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                          ISprintsService sprintsService,
+                          IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
         public Issue Issue { get; set; }
@@ -30,7 +32,7 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await context.Issue.Include(c => c.Sprint).FirstOrDefaultAsync(m => m.ID == id);
+            Issue = await issueService.GetIssueWithSprint(id);
 
             if (Issue == null)
             {

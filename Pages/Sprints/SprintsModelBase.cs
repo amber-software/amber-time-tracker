@@ -12,6 +12,7 @@ using TimeTracking.Models;
 using TimeTracking.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using TimeTracking.Services.Sprints;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking.Pages.Sprints
 {    
@@ -20,8 +21,9 @@ namespace TimeTracking.Pages.Sprints
         public SprintsModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
                                   UserManager<IdentityUser> userManager,
-                                  ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                                  ISprintsService sprintsService,
+                                  IIssueService issueService) 
+                                    : base(context, authorizationService, userManager, sprintsService, issueService)
         {
         }
 
@@ -34,8 +36,10 @@ namespace TimeTracking.Pages.Sprints
                 return false;
             }
 
-            var overlappedSprint = await context.Sprint.AsNoTracking()
-                                    .FirstOrDefaultAsync(s => s.StartDate <= sprint.StopDate && sprint.StartDate <= s.StopDate);
+            var overlappedSprint = (await sprintsService.GetAllSprints())
+                                    .FirstOrDefault(s => s.ID != sprint.ID && 
+                                                         s.StartDate <= sprint.StopDate && 
+                                                         sprint.StartDate <= s.StopDate);
             if (overlappedSprint != null)
             {
                 ModelState.AddModelError("Sprint.StartDate", $"Sprint {overlappedSprint.SprintNumber} already existed for these date");

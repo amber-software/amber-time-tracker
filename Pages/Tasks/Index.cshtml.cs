@@ -10,6 +10,7 @@ using TimeTracking.Pages;
 using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
 using TimeTracking.Services.Sprints;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking.Pages.Tasks
 {
@@ -18,8 +19,9 @@ namespace TimeTracking.Pages.Tasks
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager,
-                          ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                          ISprintsService sprintsService,
+                          IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
@@ -27,10 +29,7 @@ namespace TimeTracking.Pages.Tasks
 
         public async Task OnGetAsync()
         {
-            Issue = await context.Issue
-                            .Include(c => c.Sprint)
-                            .AsNoTracking()
-                            .ToListAsync();                            
+            Issue = await issueService.GetAllIssuesWithSprints();                            
         }
     }
 }

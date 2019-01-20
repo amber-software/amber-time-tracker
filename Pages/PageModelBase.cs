@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages
@@ -19,17 +20,20 @@ namespace TimeTracking.Pages
         protected readonly UserManager<IdentityUser> userManager;
         protected IAuthorizationService authorizationService { get; }
         protected ISprintsService sprintsService { get; }
+        protected IIssueService issueService { get; }
 
         public PageModelBase(TimeTracking.Models.TimeTrackDataContext context,
                             IAuthorizationService authorizationService,
                             UserManager<IdentityUser> userManager,
-                            ISprintsService sprintsService)
+                            ISprintsService sprintsService,
+                            IIssueService issueService)
                                   : base()
         {
             this.context = context;
             this.userManager = userManager;
             this.authorizationService = authorizationService;
             this.sprintsService = sprintsService;
+            this.issueService = issueService;
         }        
     }
 }

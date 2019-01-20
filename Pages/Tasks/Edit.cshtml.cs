@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Tasks
@@ -19,8 +20,9 @@ namespace TimeTracking.Pages.Tasks
         public EditModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager,
-                          ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                          ISprintsService sprintsService,
+                          IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
@@ -34,29 +36,29 @@ namespace TimeTracking.Pages.Tasks
                 return NotFound();
             }
 
-            Issue = await context.Issue.FirstOrDefaultAsync(m => m.ID == id);
+            Issue = await issueService.GetTargetIssue(id);
 
             if (Issue == null)
             {
                 return NotFound();
             }
 
-            return PopulateDropdownsAndShowAgain(Issue);
+            return PopulateDropdownsAndShowPage(Issue);
         }
 
         public async Task<IActionResult> OnPostAsync(int? id)
         {
             if (!ModelState.IsValid)
             {                
-                return PopulateDropdownsAndShowAgain(Issue);
+                return PopulateDropdownsAndShowPage(Issue);
             }
 
-            //context.Attach(Issue).State = EntityState.Modified;
+            context.Attach(Issue).State = EntityState.Modified;
 
-            var trackToUpdate = await context.Issue.FindAsync(id);
+            var taskToUpdate = await issueService.GetTargetIssue(id);
 
             if (await TryUpdateModelAsync<Issue>(
-                 trackToUpdate,
+                 taskToUpdate,
                  "Issue",   // Prefix for form value.
                  s => s.SprintID, s => s.TaskNumber, s => s.TaskDescription, s => s.Priority, s => s.Estimate, s => s.Remaining, s => s.Status))
             {
@@ -74,7 +76,7 @@ namespace TimeTracking.Pages.Tasks
                                 var error = $"Cannot modify Task with existed number '{Issue.TaskNumber}'";
                                 ModelState.AddModelError("Issue.TaskNumber", error);
 
-                                return PopulateDropdownsAndShowAgain(Issue);
+                                return PopulateDropdownsAndShowPage(Issue);
                            default:
                               throw;
                         }
@@ -83,7 +85,7 @@ namespace TimeTracking.Pages.Tasks
                 return RedirectToPage("./Index");
             }
 
-            return PopulateDropdownsAndShowAgain(Issue);
+            return PopulateDropdownsAndShowPage(Issue);
         }
     }
 }

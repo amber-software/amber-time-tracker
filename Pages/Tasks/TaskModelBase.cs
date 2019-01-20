@@ -13,6 +13,7 @@ using TimeTracking.Models;
 using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel;
 using TimeTracking.Services.Sprints;
+using TimeTracking.Services.Issues;
 
 namespace TimeTracking.Pages.Tasks
 {    
@@ -27,12 +28,13 @@ namespace TimeTracking.Pages.Tasks
         public TaskModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
                                   UserManager<IdentityUser> userManager,
-                                  ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                                  ISprintsService sprintsService,
+                                  IIssueService issueService) 
+                                    : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
-        public PageResult PopulateDropdownsAndShowAgain(Issue issue = null)
+        public PageResult PopulateDropdownsAndShowPage(Issue issue = null)
         {
             PopulateTaskPriorityDropDownList(issue?.Priority);
             PopulateSprintsDropDownList(issue?.SprintID);

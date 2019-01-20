@@ -17,6 +17,7 @@ namespace TimeTracking.Models
         
         [Required]
         [DataType(DataType.Date)]
+        
         public DateTime StopDate { get; set; }
 
         public ICollection<Issue> Issues { get; set; }                        

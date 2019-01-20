@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Sprints
@@ -18,8 +19,9 @@ namespace TimeTracking.Pages.Sprints
         public DeleteModel(TimeTracking.Models.TimeTrackDataContext context,
                           IAuthorizationService authorizationService,
                           UserManager<IdentityUser> userManager,
-                          ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                          ISprintsService sprintsService,
+                          IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 

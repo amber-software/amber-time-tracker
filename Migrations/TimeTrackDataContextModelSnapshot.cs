@@ -205,11 +205,13 @@ namespace TimeTracking.Migrations
 
                     b.Property<int>("Estimate");
 
+                    b.Property<int>("Platform");
+
                     b.Property<int>("Priority");
 
                     b.Property<int>("Remaining");
 
-                    b.Property<int>("SprintID");
+                    b.Property<int?>("SprintID");
 
                     b.Property<int>("Status");
 
@@ -253,10 +255,14 @@ namespace TimeTracking.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
+                    b.Property<string>("Description");
+
                     b.Property<int>("IssueID");
 
                     b.Property<string>("OwnerID")
                         .IsRequired();
+
+                    b.Property<int>("Platform");
 
                     b.Property<float>("SpentHours");
 
@@ -320,8 +326,7 @@ namespace TimeTracking.Migrations
                 {
                     b.HasOne("TimeTracking.Models.Sprint", "Sprint")
                         .WithMany("Issues")
-                        .HasForeignKey("SprintID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("SprintID");
                 });
 
             modelBuilder.Entity("TimeTracking.Models.TimeTrack", b =>

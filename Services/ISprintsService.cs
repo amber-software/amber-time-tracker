@@ -8,6 +8,6 @@ namespace TimeTracking.Services.Sprints
     {
         Task<IList<Sprint>> GetAllSprints();
 
-        Task<Sprint> GetTargetSprintOrCurrentSprint(int? sprintId);
+        Task<Sprint> GetTargetSprint(int? sprintId);
     }
 }

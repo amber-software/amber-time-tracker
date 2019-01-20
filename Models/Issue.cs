@@ -14,7 +14,7 @@ namespace TimeTracking.Models
         [Required(AllowEmptyStrings=false)]
         public string TaskDescription { get; set; }
 
-        public int SprintID { get; set; }
+        public int? SprintID { get; set; }
 
         public Sprint Sprint { get; set; }
         
@@ -27,5 +27,7 @@ namespace TimeTracking.Models
         public TaskPriority Priority { get; set; }
 
         public ICollection<TimeTrack> TimeTracks { get; set; }
+
+        public Platform Platform { get; set; }
     }
 }

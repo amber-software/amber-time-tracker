@@ -10,12 +10,8 @@
     <div class="form-group">
         <label class="control-label">Sprint</label>
         <select id="sprintId" name="id" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
-            <option>--You can select Sprint--</option>
+            <option>--All Sprints--</option>            
         </select>
-        @if (Model.TargetSprintId.HasValue)
-        {
-            <label>@(Model.ReportDays[0].ToShortDateString()) - @(Model.ReportDays[Model.ReportDays.Count - 1].ToShortDateString())</label>
-        }
     </div>
 </form>
 <form name="selectDatesForm" method="GET">

@@ -12,10 +12,17 @@ namespace TimeTracking.Models
 
         [Required]
         [DataType(DataType.Date)]
+
         public DateTime TrackingDate { get; set; }    
+
         public int IssueID { get; set; }
+
         public Issue Issue { get; set; }
         
         public string OwnerID { get; set; }
+
+        public string Description { get; set; }
+
+        public Platform Platform { get; set; }
     }
 }

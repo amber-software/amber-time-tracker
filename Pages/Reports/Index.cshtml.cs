@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.Reports
@@ -20,8 +21,9 @@ namespace TimeTracking.Pages.Reports
         public IndexModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
                            UserManager<IdentityUser> userManager,
-                           ISprintsService sprintsService)
-                                  : base(context, authorizationService, userManager, sprintsService)
+                           ISprintsService sprintsService,
+                           IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
@@ -49,17 +51,25 @@ namespace TimeTracking.Pages.Reports
                 return new ChallengeResult();
             }
             
-            Sprint targetSprint = null;
+            Sprint targetSprint = await sprintsService.GetTargetSprint(id);
             if (startDate.HasValue && stopDate.HasValue)
             {
                 StartDate = startDate;
                 StopDate = stopDate;
             }
-            else
+            else if (targetSprint != null)
             {
-                targetSprint = await sprintsService.GetTargetSprintOrCurrentSprint(id);
                 StartDate = targetSprint.StartDate;
                 StopDate = targetSprint.StopDate;
+            }
+            else
+            {
+                var thisWeekStart = DateTime.Now.Date;
+                while (thisWeekStart.DayOfWeek != DayOfWeek.Monday)
+                    thisWeekStart = thisWeekStart.AddDays(-1);
+
+                StartDate = thisWeekStart;
+                StopDate = thisWeekStart.AddDays(6);
             }
 
             if (!StartDate.HasValue || !StopDate.HasValue)
@@ -70,9 +80,10 @@ namespace TimeTracking.Pages.Reports
                                                         .Select(offset => StartDate.Value.AddDays(offset))
                                                         .ToList();
 
-            SpentTimes = context.Issue
-                            .Include(i => i.TimeTracks)
-                            .AsNoTracking()
+            var issues = (id ?? 0) >= 0 ?
+                            targetSprint?.Issues ?? await issueService.GetAllIssues() :
+                            await issueService.GetIssuesWithoutSprints();
+            SpentTimes = issues
                             .Where(i => i.TimeTracks.Any(t => t.TrackingDate >= StartDate.Value && t.TrackingDate < StopDate.Value))
                             .Select(i => new IssueTrack()
                             {
@@ -86,15 +97,19 @@ namespace TimeTracking.Pages.Reports
                             })                            
                             .ToList();   
             
-            TargetSprintId = targetSprint?.ID;
-            await PopulateSprintsDropDownList(TargetSprintId);
+            TargetSprintId = id;
+            await PopulateSprintsDropDownList(id);
             return Page();
         }
 
-        private async Task PopulateSprintsDropDownList(object selectedSprint = null)
-        {            
-            SprintsSL = new SelectList(await sprintsService.GetAllSprints(),
-                        "ID", "SprintNumber", selectedSprint);
+        private async Task PopulateSprintsDropDownList(object selectedSprintID = null)
+        {
+            var selectValues = (await sprintsService.GetAllSprints())
+                                .Select(s => new { ID = s.ID, Text = s.SprintNumber })
+                                .ToList();
+            selectValues.Add(new { ID = -1, Text = "Without Sprint" });
+
+            SprintsSL = new SelectList(selectValues, "ID", "Text", selectedSprintID);            
         }
 
         private IList<TimeTrackLogTime> GetIssueSpentTimesByDays(Issue issue, IEnumerable<DateTime> days)

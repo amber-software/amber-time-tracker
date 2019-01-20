@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TimeTracking.Authorization;
 using TimeTracking.Models;
+using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
 
 namespace TimeTracking.Pages.TimeTracks
@@ -19,8 +20,9 @@ namespace TimeTracking.Pages.TimeTracks
         public CreateModel(TimeTracking.Models.TimeTrackDataContext context,
                            IAuthorizationService authorizationService,
                            UserManager<IdentityUser> userManager,
-                           ISprintsService sprintsService) 
-                           : base(context, authorizationService, userManager, sprintsService)
+                           ISprintsService sprintsService,
+                           IIssueService issueService) 
+                           : base(context, authorizationService, userManager, sprintsService, issueService)
         {            
         }
 
@@ -35,13 +37,10 @@ namespace TimeTracking.Pages.TimeTracks
                 ! await AllowedToEditTimeTracksOfAnother())
                 return new ChallengeResult();
 
-            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);
+            var sprint = await sprintsService.GetTargetSprint(sprintId);
 
             // Set data for creation
-            PopulateCreateTimeTrackIdentifiers(id, sprintId);            
-            PopulateIssuesDropDownList(sprint);
-
-            return Page();
+            return await PopulateDropdownsAndShowPage(id, sprintId);            
         }        
 
         public async Task<IActionResult> OnPostAsync(string id, int? sprintId)
@@ -52,17 +51,15 @@ namespace TimeTracking.Pages.TimeTracks
                 ! await AllowedToEditTimeTracksOfAnother())
                 return new ChallengeResult();
 
-            var sprint = await sprintsService.GetTargetSprintOrCurrentSprint(sprintId);           
+            var sprint = await sprintsService.GetTargetSprint(sprintId);           
 
             if (!ModelState.IsValid)
             {
-                PopulateCreateTimeTrackIdentifiers(id, sprintId);            
-                PopulateIssuesDropDownList(sprint);
-
-                return Page();
+                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
             }
 
-            var targetIssue = sprint.Issues.FirstOrDefault(i => i.ID == TimeTrack.IssueID);
+            Issue targetIssue = await issueService.GetTargetIssue(TimeTrack.IssueID);
+            
             if (targetIssue == null)
                 throw new ApplicationException($"There is no suitable issue ID={TimeTrack.IssueID} in database!");
 
@@ -71,10 +68,7 @@ namespace TimeTracking.Pages.TimeTracks
             {
                 ModelState.AddModelError("TimeTrack.TrackingDate", $"Time for task '{targetIssue.TaskNumber}' is already set for date '{TimeTrack.TrackingDate.ToShortDateString()}'");
 
-                PopulateCreateTimeTrackIdentifiers(id, sprintId);            
-                PopulateIssuesDropDownList(sprint);
-
-                return Page();
+                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
             }
 
             // Create new track
@@ -84,7 +78,7 @@ namespace TimeTracking.Pages.TimeTracks
             if (await TryUpdateModelAsync<TimeTrack>(
                  emptyTrack,
                  "TimeTrack",   // Prefix for form value.
-                 s => s.IssueID, s => s.SpentHours, s => s.TrackingDate))
+                 s => s.IssueID, s => s.SpentHours, s => s.TrackingDate, s => s.Platform, s => s.Description))
             {
                 context.TimeTrack.Add(emptyTrack);
                 await context.SaveChangesAsync();
@@ -94,16 +88,7 @@ namespace TimeTracking.Pages.TimeTracks
 
             ModelState.AddModelError(string.Empty, $"Can't set time for task '{targetIssue.TaskNumber}' for date '{TimeTrack.TrackingDate}'");
 
-            PopulateCreateTimeTrackIdentifiers(id, sprintId);            
-            PopulateIssuesDropDownList(sprint, emptyTrack.IssueID);
-
-            return Page();
-        }
-
-        private void PopulateCreateTimeTrackIdentifiers(string userId, int? sprintId)
-        {
-            TargetSprintId = sprintId;
-            TargetUserId = userId;
-        }
+            return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
+        }        
     }
 }

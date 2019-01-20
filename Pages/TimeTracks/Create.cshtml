@@ -15,12 +15,29 @@
 </h2>
 <h4>TimeTrack</h4>
 <hr />
+<form name="sprintForm" method="get">
+    <input type="hidden" name="id" value="@Model.TargetUserId" />    
+    <div class="form-group">
+        <label class="control-label">Sprint</label>
+        <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
+            <option value="">-- Select Sprint to filter Issues --</option>
+        </select>            
+    </div>
+</form>
 <div class="row">
     <div class="col-md-4">
         <form method="post">            
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" name="id" value="@Model.TargetUserId" />
             <input type="hidden" name="sprintId" value="@Model.TargetSprintId" />
+            <div class="form-group">
+                <label asp-for="TimeTrack.Issue" class="control-label"></label>
+                <select asp-for="TimeTrack.IssueID" class="form-control"
+                        asp-items="@Model.IssueNameSL">
+                    <option value="">-- Select Task --</option>
+                </select>
+                <span asp-validation-for="TimeTrack.IssueID" class="text-danger" />
+            </div>
             <div class="form-group">
                 <label asp-for="TimeTrack.SpentHours" class="control-label"></label>
                 <input asp-for="TimeTrack.SpentHours" class="form-control" />
@@ -30,14 +47,18 @@
                 <label asp-for="TimeTrack.TrackingDate" class="control-label"></label>
                 <input asp-for="TimeTrack.TrackingDate" class="form-control" type="Date" />
                 <span asp-validation-for="TimeTrack.TrackingDate" class="text-danger"></span>
+            </div>            
+            <div class="form-group">
+                <label asp-for="TimeTrack.Description" class="control-label"></label>
+                <input asp-for="TimeTrack.Description" class="form-control" />
+                <span asp-validation-for="TimeTrack.Description" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="TimeTrack.Issue" class="control-label"></label>
-                <select asp-for="TimeTrack.IssueID" class="form-control"
-                        asp-items="@Model.IssueNameSL">
-                    <option value="">-- Select Task --</option>
+                <label asp-for="TimeTrack.Platform" class="control-label"></label>
+                <select asp-for="TimeTrack.Platform" class="form-control"
+                        asp-items="@Model.PlatformsSL">                    
                 </select>
-                <span asp-validation-for="TimeTrack.IssueID" class="text-danger" />
+                <span asp-validation-for="TimeTrack.Platform" class="text-danger" />
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
@@ -53,3 +74,10 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    function DoPostBackBySprint()
+    {    
+        document.sprintForm.submit();
+    }    
+</script>
