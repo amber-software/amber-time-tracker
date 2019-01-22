@@ -1,4 +1,4 @@
-@page
+@page  "{handler?}"
 @model TimeTracking.Pages.Reports.IndexModel
 
 @{
@@ -122,6 +122,13 @@
         </tr>
     </tbody>
 </table>
+
+<a asp-page-handler="CSVReport"    
+   asp-route-id="@Model.SprintsSL.SelectedValue"
+   asp-route-startDate="@Model.StartDate"
+   asp-route-stopDate="@Model.StopDate">
+   Download Report
+</a>
 
 <script>
     function DoPostBackBySprint() {

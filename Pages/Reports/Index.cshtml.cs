@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -51,6 +52,95 @@ namespace TimeTracking.Pages.Reports
                 return new ChallengeResult();
             }
             
+            await PrepareModel(id, startDate, stopDate);
+            
+            TargetSprintId = id;
+            await PopulateSprintsDropDownList(id);
+            return Page();
+        }
+
+        public async Task<IActionResult> OnGetCSVReportAsync(int? id, DateTime? startDate, DateTime? stopDate)
+        {
+            if (!(await authorizationService.AuthorizeAsync(
+                                                      User, new TimeTrack(),
+                                                      ReportOperations.ViewReport))
+                .Succeeded)
+            {
+                return new ChallengeResult();
+            }
+            
+            await PrepareModel(id, startDate, stopDate);
+
+            var reportcsv = new StringBuilder();
+
+            var comlumnsHeadrs = new List<string>()
+            {
+                "Task Number",
+                "Description",
+                "Priority",
+                "Estimation",
+                "RemainingTime",
+                "Status"
+            };
+
+            foreach (var day in ReportDays)
+                comlumnsHeadrs.Add($"{day.ToString("ddd")} {day.Date.Day}");
+
+            comlumnsHeadrs.Add("Total");
+
+            float totalHours = 0f;
+            foreach (var item in SpentTimes)
+            {
+                reportcsv.Append(item.IssueNumber).Append(',');
+                reportcsv.Append(item.IssueDescription).Append(',');
+                reportcsv.Append(item.Priority).Append(',');
+                reportcsv.Append(item.Estimate).Append(',');
+                reportcsv.Append(item.RemainingTime).Append(',');
+                reportcsv.Append(item.Status).Append(',');
+
+                float totalTaskHours = 0f;
+                foreach (var loggedTime in item.LoggedTimes)
+                {                
+                    totalTaskHours += loggedTime.Hours ?? 0;
+                    reportcsv.Append(loggedTime.Hours).Append(',');
+                }
+
+                reportcsv.Append(totalTaskHours).AppendLine();
+
+                totalHours += totalTaskHours;        
+            }
+
+            reportcsv.Append(',');
+            reportcsv.Append(',');
+            reportcsv.Append("Total").Append(',');
+            reportcsv.Append(SpentTimes.Sum(t => t.Estimate)).Append(',');
+            reportcsv.Append(SpentTimes.Sum(t => t.RemainingTime)).Append(',');
+            reportcsv.Append(',');
+
+            for (var i = 0; i < ReportDays.Count; i++)
+            {            
+                reportcsv.Append(SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)).Append(',');
+            }
+
+            reportcsv.Append(totalHours);
+            
+            byte[] buffer = Encoding.ASCII.GetBytes($"{string.Join(",", comlumnsHeadrs)}\r\n{reportcsv.ToString()}");
+            
+            return File(buffer, "text/csv", $"report_{StartDate.Value.ToString("yyyy-MM-dd")}-{StopDate.Value.ToString("yyyy-MM-dd")}.csv");
+        }
+
+        private async Task PopulateSprintsDropDownList(object selectedSprintID = null)
+        {
+            var selectValues = (await sprintsService.GetAllSprints())
+                                .Select(s => new { ID = s.ID, Text = s.SprintNumber })
+                                .ToList();
+            selectValues.Add(new { ID = -1, Text = "Without Sprint" });
+
+            SprintsSL = new SelectList(selectValues, "ID", "Text", selectedSprintID);            
+        }
+
+        private async Task PrepareModel(int? id, DateTime? startDate, DateTime? stopDate)
+        {
             Sprint targetSprint = await sprintsService.GetTargetSprint(id);
             if (startDate.HasValue && stopDate.HasValue)
             {
@@ -96,20 +186,6 @@ namespace TimeTracking.Pages.Reports
                                 Priority = i.Priority
                             })                            
                             .ToList();   
-            
-            TargetSprintId = id;
-            await PopulateSprintsDropDownList(id);
-            return Page();
-        }
-
-        private async Task PopulateSprintsDropDownList(object selectedSprintID = null)
-        {
-            var selectValues = (await sprintsService.GetAllSprints())
-                                .Select(s => new { ID = s.ID, Text = s.SprintNumber })
-                                .ToList();
-            selectValues.Add(new { ID = -1, Text = "Without Sprint" });
-
-            SprintsSL = new SelectList(selectValues, "ID", "Text", selectedSprintID);            
         }
 
         private IList<TimeTrackLogTime> GetIssueSpentTimesByDays(Issue issue, IEnumerable<DateTime> days)
