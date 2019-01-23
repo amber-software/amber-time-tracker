@@ -29,7 +29,7 @@ namespace TimeTracking.Pages.Tasks
 
         public async Task OnGetAsync()
         {
-            Issue = await issueService.GetAllIssuesWithSprints();                            
+            Issue = await issueService.GetAllIssuesWithTheirSprints();                            
         }
     }
 }

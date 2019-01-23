@@ -9,6 +9,8 @@ namespace TimeTracking.Models
         public string IssueNumber { get; set; }
 
         public string IssueDescription { get; set; }
+
+        public Platform? IssuePlatform { get; set; }
         
         public float Estimate { get; set; }                
 

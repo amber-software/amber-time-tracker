@@ -52,14 +52,7 @@
                 <label asp-for="TimeTrack.Description" class="control-label"></label>
                 <input asp-for="TimeTrack.Description" class="form-control" />
                 <span asp-validation-for="TimeTrack.Description" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="TimeTrack.Platform" class="control-label"></label>
-                <select asp-for="TimeTrack.Platform" class="form-control"
-                        asp-items="@Model.PlatformsSL">                    
-                </select>
-                <span asp-validation-for="TimeTrack.Platform" class="text-danger" />
-            </div>
+            </div>            
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-default" />
             </div>

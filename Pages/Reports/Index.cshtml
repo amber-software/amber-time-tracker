@@ -7,6 +7,7 @@
 
 <h2>Report</h2>
 <form name="selectSprintForm" method="GET">    
+    <input type="hidden" name="platform" value="@Model.TargetPlatform" />
     <div class="form-group">
         <label class="control-label">Sprint</label>
         <select id="sprintId" name="id" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
@@ -15,12 +16,28 @@
     </div>
 </form>
 <form name="selectDatesForm" method="GET">
-    
+    <input type="hidden" name="platform" value="@Model.TargetPlatform" />
+    <div class="form-group">
         <label asp-for="StartDate"></label>
         <input asp-for="StartDate" type="Date" onchange="DoPostBackByDates();"/>
         <label asp-for="StopDate"></label>
         <input asp-for="StopDate"type="Date" onchange="DoPostBackByDates();"/>
-    
+    </div>
+</form>
+<form name="selectPlatformForm" method="GET">    
+    <input type="hidden" name="id" value="@Model.TargetSprintId" />
+    @{
+        string startDateStr = Model.StartDate?.ToString("yyyy-MM-dd");
+        string stopDateStr = Model.StopDate?.ToString("yyyy-MM-dd");
+    }
+    <input type="hidden" name="startDate" value="@startDateStr" />
+    <input type="hidden" name="stopDate" value="@stopDateStr" />
+    <div class="form-group">
+        <label class="control-label">Platform</label>
+        <select id="platformId" name="platform" asp-items="@Model.PlatformsSL" onchange="DoPostBackByPlatform();">
+            <option value="">--All Platforms--</option>            
+        </select>
+    </div>
 </form>
 <table class="table">
     <thead>
@@ -126,20 +143,21 @@
 <a asp-page-handler="CSVReport"    
    asp-route-id="@Model.SprintsSL.SelectedValue"
    asp-route-startDate="@Model.StartDate"
-   asp-route-stopDate="@Model.StopDate">
+   asp-route-stopDate="@Model.StopDate"
+   asp-route-platform="@Model.TargetPlatform">
    Download Report
 </a>
 
 <script>
     function DoPostBackBySprint() {
-        var select = document.getElementById("sprintId");
-        var option = select.options[select.selectedIndex];
-        if (option.value) {            
-            document.selectSprintForm.submit();
-        }
+        document.selectSprintForm.submit();
     }
 
     function DoPostBackByDates() {
         document.selectDatesForm.submit();
     }
+
+    function DoPostBackByPlatform() {
+        document.selectPlatformForm.submit();
+    }    
 </script>

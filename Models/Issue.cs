@@ -28,6 +28,6 @@ namespace TimeTracking.Models
 
         public ICollection<TimeTrack> TimeTracks { get; set; }
 
-        public Platform Platform { get; set; }
+        public Platform? Platform { get; set; }
     }
 }

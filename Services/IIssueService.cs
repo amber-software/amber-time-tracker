@@ -8,8 +8,8 @@ namespace TimeTracking.Services.Issues
     {
         Task<IList<Issue>> GetAllIssues();
 
-        Task<IList<Issue>> GetAllIssuesWithSprints();
 
+        Task<IList<Issue>> GetAllIssuesWithTheirSprints();
         Task<IList<Issue>> GetIssuesWithoutSprints();
 
         Task<Issue> GetTargetIssue(int? issueId);

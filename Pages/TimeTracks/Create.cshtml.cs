@@ -55,7 +55,7 @@ namespace TimeTracking.Pages.TimeTracks
 
             if (!ModelState.IsValid)
             {
-                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
+                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID);
             }
 
             Issue targetIssue = await issueService.GetTargetIssue(TimeTrack.IssueID);
@@ -68,7 +68,7 @@ namespace TimeTracking.Pages.TimeTracks
             {
                 ModelState.AddModelError("TimeTrack.TrackingDate", $"Time for task '{targetIssue.TaskNumber}' is already set for date '{TimeTrack.TrackingDate.ToShortDateString()}'");
 
-                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
+                return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID);
             }
 
             // Create new track
@@ -78,7 +78,7 @@ namespace TimeTracking.Pages.TimeTracks
             if (await TryUpdateModelAsync<TimeTrack>(
                  emptyTrack,
                  "TimeTrack",   // Prefix for form value.
-                 s => s.IssueID, s => s.SpentHours, s => s.TrackingDate, s => s.Platform, s => s.Description))
+                 s => s.IssueID, s => s.SpentHours, s => s.TrackingDate, s => s.Description))
             {
                 context.TimeTrack.Add(emptyTrack);
                 await context.SaveChangesAsync();
@@ -88,7 +88,7 @@ namespace TimeTracking.Pages.TimeTracks
 
             ModelState.AddModelError(string.Empty, $"Can't set time for task '{targetIssue.TaskNumber}' for date '{TimeTrack.TrackingDate}'");
 
-            return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID, TimeTrack.Platform);
+            return await PopulateDropdownsAndShowPage(id, sprintId, TimeTrack.IssueID);
         }        
     }
 }

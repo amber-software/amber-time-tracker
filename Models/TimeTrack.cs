@@ -21,8 +21,6 @@ namespace TimeTracking.Models
         
         public string OwnerID { get; set; }
 
-        public string Description { get; set; }
-
-        public Platform Platform { get; set; }
+        public string Description { get; set; }        
     }
 }

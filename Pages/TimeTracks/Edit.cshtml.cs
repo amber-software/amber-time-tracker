@@ -54,7 +54,7 @@ namespace TimeTracking.Pages.TimeTracks
 
 
             // Set data for editing
-            return await PopulateDropdownsAndShowPage(TimeTrack.OwnerID, TimeTrack.Issue.Sprint?.ID, TimeTrack.IssueID, TimeTrack.Platform);
+            return await PopulateDropdownsAndShowPage(TimeTrack.OwnerID, TimeTrack.Issue.Sprint?.ID, TimeTrack.IssueID);
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -79,7 +79,7 @@ namespace TimeTracking.Pages.TimeTracks
             
             if (!ModelState.IsValid)
             {                
-                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID, trackToUpdate.Platform);                
+                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID);                
             }
             
             if (TimeTrack.TrackingDate != trackToUpdate.TrackingDate)
@@ -108,7 +108,7 @@ namespace TimeTracking.Pages.TimeTracks
                  "TimeTrack",   // Prefix for form value.
                    s => s.IssueID, s => s.SpentHours, s => s.TrackingDate, s => s.Description))
             {
-                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID, trackToUpdate.Platform);                                
+                return await PopulateDropdownsAndShowPage(trackToUpdate.OwnerID, trackToUpdate.Issue.Sprint?.ID, trackToUpdate.IssueID);                                
             }
                         
             await context.SaveChangesAsync();                                

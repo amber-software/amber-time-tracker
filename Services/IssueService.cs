@@ -24,15 +24,15 @@ namespace TimeTracking.Services.Issues
             return await issuesQuery.AsNoTracking().ToListAsync();
         }
 
-        public async Task<IList<Issue>> GetAllIssuesWithSprints()
+        public async Task<IList<Issue>> GetAllIssuesWithTheirSprints()
         {
-            return await issuesQuery.Include(i => i.Sprint).Where(i => i.SprintID != null).AsNoTracking().ToListAsync();
+            return await issuesQuery.Include(i => i.Sprint).AsNoTracking().ToListAsync();
         }     
 
         public async Task<IList<Issue>> GetIssuesWithoutSprints()
         {
             return await issuesQuery.Where(i => i.SprintID == null).AsNoTracking().ToListAsync();
-        }
+        }        
 
         public async Task<Issue> GetTargetIssue(int? issueId)
         {            

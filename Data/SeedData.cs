@@ -84,7 +84,7 @@ namespace TimeTracking.Models
             var testTask = new Issue
             {
                 TaskNumber = "VIR-1",
-                TaskDescription = "Some task to test",
+                TaskDescription = "Some Mac task to test",
                 Sprint = testSprint,
                 Platform = Platform.OSX
             };
@@ -95,20 +95,48 @@ namespace TimeTracking.Models
                     SpentHours = 1.2f,
                     TrackingDate = DateTime.Now.Date,
                     OwnerID = adminID,
-                    Issue = testTask,
-                    Platform = Platform.Windows
+                    Issue = testTask
                 }                
             );
 
             var testTask2 = new Issue
             {
                 TaskNumber = "VIR-2",
-                TaskDescription = "Some task without sprint",
+                TaskDescription = "Some Windows task without sprint",
                 Sprint = null,
-                Platform = Platform.WindowsAndOSX
+                Platform = Platform.Windows
             };
 
+            context.TimeTrack.AddRange(            
+                new TimeTrack
+                {
+                    SpentHours = 1f,
+                    TrackingDate = DateTime.Now.Date.AddDays(-1),
+                    OwnerID = adminID,
+                    Issue = testTask2
+                }                
+            );
+
             context.Issue.AddRange(testTask2);
+
+            var testTask3 = new Issue
+            {
+                TaskNumber = "VIR-3",
+                TaskDescription = "Some task without sprint and platform",
+                Sprint = null                
+            };
+
+            context.TimeTrack.AddRange(            
+                new TimeTrack
+                {
+                    SpentHours = 0.5f,
+                    TrackingDate = DateTime.Now.Date,
+                    OwnerID = adminID,
+                    Issue = testTask3
+                }                
+            );
+
+            context.Issue.AddRange(testTask3);
 
             context.BusinessConstant.AddRange(
                 new BusinessConstant

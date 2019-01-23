@@ -10,7 +10,7 @@ using TimeTracking.Models;
 namespace TimeTracking.Migrations
 {
     [DbContext(typeof(TimeTrackDataContext))]
-    [Migration("20190119143403_Initial")]
+    [Migration("20190123041836_Initial")]
     partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -207,7 +207,7 @@ namespace TimeTracking.Migrations
 
                     b.Property<int>("Estimate");
 
-                    b.Property<int>("Platform");
+                    b.Property<int?>("Platform");
 
                     b.Property<int>("Priority");
 
@@ -263,8 +263,6 @@ namespace TimeTracking.Migrations
 
                     b.Property<string>("OwnerID")
                         .IsRequired();
-
-                    b.Property<int>("Platform");
 
                     b.Property<float>("SpentHours");
 

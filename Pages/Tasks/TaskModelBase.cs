@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.ComponentModel;
 using TimeTracking.Services.Sprints;
 using TimeTracking.Services.Issues;
+using System.ComponentModel.DataAnnotations;
 
 namespace TimeTracking.Pages.Tasks
 {    
@@ -24,6 +25,8 @@ namespace TimeTracking.Pages.Tasks
         public SelectList TaskPrioritySL { get; set; }
 
         public SelectList StatusesSL { get; set; }
+
+        public SelectList PlatformsSL { get; set; }
 
         public TaskModelBase(TimeTracking.Models.TimeTrackDataContext context, 
                                   IAuthorizationService authorizationService,
@@ -39,6 +42,7 @@ namespace TimeTracking.Pages.Tasks
             PopulateTaskPriorityDropDownList(issue?.Priority);
             PopulateSprintsDropDownList(issue?.SprintID);
             PopulateTaskStatusDropdownList(issue?.Status);
+            PopulatePlatforms(issue?.Platform);
 
             return Page();
         }
@@ -89,5 +93,29 @@ namespace TimeTracking.Pages.Tasks
             StatusesSL = new SelectList(statuses,
                         "ID", "StatusName", selectedStatus);
         }
+
+        private void PopulatePlatforms(Platform? selectedPlatform = null)
+        {
+            var platformType = typeof(Platform);
+            var values = Enum.GetValues(platformType);
+
+            var platforms = new List<object>();
+            foreach (var value in values)
+            {
+                var memInfo = platformType.GetMember(platformType.GetEnumName(value));
+                 var displayAttribute = memInfo[0]
+                    .GetCustomAttributes(typeof(DisplayAttribute), false)
+                    .FirstOrDefault() as DisplayAttribute;
+
+                if (displayAttribute != null)
+                {
+                    platforms.Add(new { ID = (int)value, PlatformName = displayAttribute.Name });
+                }
+            }
+
+            PlatformsSL = new SelectList(platforms,
+                        "ID", "PlatformName", (int?)selectedPlatform);
+        }
+
     }
 }

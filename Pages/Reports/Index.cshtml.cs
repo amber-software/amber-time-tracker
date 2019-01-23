@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,11 @@ namespace TimeTracking.Pages.Reports
 
         public SelectList SprintsSL { get; set; }
 
+        public SelectList PlatformsSL { get; set; }
+
         public int? TargetSprintId { get; set; }
+
+        public Platform? TargetPlatform { get; set; }
 
         [Display(Name = "From")]
         public DateTime? StartDate { get; set; }
@@ -42,7 +47,7 @@ namespace TimeTracking.Pages.Reports
         [Display(Name = "To")]
         public DateTime? StopDate { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id, DateTime? startDate, DateTime? stopDate)
+        public async Task<IActionResult> OnGetAsync(int? id, DateTime? startDate, DateTime? stopDate, Platform? platform)
         {
             if (!(await authorizationService.AuthorizeAsync(
                                                       User, new TimeTrack(),
@@ -52,14 +57,16 @@ namespace TimeTracking.Pages.Reports
                 return new ChallengeResult();
             }
             
-            await PrepareModel(id, startDate, stopDate);
+            await PrepareModel(id, startDate, stopDate, platform);
             
             TargetSprintId = id;
+            TargetPlatform = platform;
             await PopulateSprintsDropDownList(id);
+            PopulatePlatformsDropDownList(platform);
             return Page();
         }
-
-        public async Task<IActionResult> OnGetCSVReportAsync(int? id, DateTime? startDate, DateTime? stopDate)
+        
+        public async Task<IActionResult> OnGetCSVReportAsync(int? id, DateTime? startDate, DateTime? stopDate, Platform? platform)
         {
             if (!(await authorizationService.AuthorizeAsync(
                                                       User, new TimeTrack(),
@@ -69,7 +76,7 @@ namespace TimeTracking.Pages.Reports
                 return new ChallengeResult();
             }
             
-            await PrepareModel(id, startDate, stopDate);
+            await PrepareModel(id, startDate, stopDate, platform);
 
             var reportcsv = new StringBuilder();
 
@@ -110,8 +117,9 @@ namespace TimeTracking.Pages.Reports
                 totalHours += totalTaskHours;        
             }
 
-            reportcsv.Append(',');
-            reportcsv.Append(',');
+            reportcsv.Append(platform.HasValue ? "Platform" : string.Empty).Append(',');
+            reportcsv.Append(platform.HasValue ? platform.Value.ToString() : string.Empty).Append(',');
+            
             reportcsv.Append("Total").Append(',');
             reportcsv.Append(SpentTimes.Sum(t => t.Estimate)).Append(',');
             reportcsv.Append(SpentTimes.Sum(t => t.RemainingTime)).Append(',');
@@ -126,7 +134,9 @@ namespace TimeTracking.Pages.Reports
             
             byte[] buffer = Encoding.ASCII.GetBytes($"{string.Join(",", comlumnsHeadrs)}\r\n{reportcsv.ToString()}");
             
-            return File(buffer, "text/csv", $"report_{StartDate.Value.ToString("yyyy-MM-dd")}-{StopDate.Value.ToString("yyyy-MM-dd")}.csv");
+            var platformStr = platform.HasValue ? $"{platform.Value}-" : string.Empty;
+
+            return File(buffer, "text/csv", $"report_{platformStr}{StartDate.Value.ToString("yyyy-MM-dd")}-{StopDate.Value.ToString("yyyy-MM-dd")}.csv");
         }
 
         private async Task PopulateSprintsDropDownList(object selectedSprintID = null)
@@ -139,7 +149,30 @@ namespace TimeTracking.Pages.Reports
             SprintsSL = new SelectList(selectValues, "ID", "Text", selectedSprintID);            
         }
 
-        private async Task PrepareModel(int? id, DateTime? startDate, DateTime? stopDate)
+        private void PopulatePlatformsDropDownList(Platform? selectedPlatform = null)
+        {
+            var platformType = typeof(Platform);
+            var values = Enum.GetValues(platformType);
+
+            var platforms = new List<object>();
+            foreach (var value in values)
+            {
+                var memInfo = platformType.GetMember(platformType.GetEnumName(value));
+                 var displayAttribute = memInfo[0]
+                    .GetCustomAttributes(typeof(DisplayAttribute), false)
+                    .FirstOrDefault() as DisplayAttribute;
+
+                if (displayAttribute != null)
+                {
+                    platforms.Add(new { ID = (int)value, PlatformName = displayAttribute.Name });
+                }
+            }
+
+            PlatformsSL = new SelectList(platforms,
+                        "ID", "PlatformName", (int?)selectedPlatform);
+        }
+
+        private async Task PrepareModel(int? id, DateTime? startDate, DateTime? stopDate, Platform? platform)
         {
             Sprint targetSprint = await sprintsService.GetTargetSprint(id);
             if (startDate.HasValue && stopDate.HasValue)
@@ -163,7 +196,7 @@ namespace TimeTracking.Pages.Reports
             }
 
             if (!StartDate.HasValue || !StopDate.HasValue)
-                throw new ApplicationException("Can't create report: not enough parameters");            
+                throw new ApplicationException("Can't create report: not enough parameters");
 
             ReportDays = Enumerable.Range(0, 1 + StopDate.Value
                                                         .Subtract(StartDate.Value).Days)
@@ -173,8 +206,13 @@ namespace TimeTracking.Pages.Reports
             var issues = (id ?? 0) >= 0 ?
                             targetSprint?.Issues ?? await issueService.GetAllIssues() :
                             await issueService.GetIssuesWithoutSprints();
-            SpentTimes = issues
-                            .Where(i => i.TimeTracks.Any(t => t.TrackingDate >= StartDate.Value && t.TrackingDate < StopDate.Value))
+
+            // filter issues has timetracks in selected date range
+            var filteredIssues = issues
+                                .Where(i => !platform.HasValue || i.Platform == platform.Value) // filter issues by platform if specified
+                                .Where(i => i.TimeTracks.Any(t => t.TrackingDate >= StartDate.Value && t.TrackingDate < StopDate.Value)); // filter issues by tracks dates
+            
+            SpentTimes = filteredIssues
                             .Select(i => new IssueTrack()
                             {
                                 IssueNumber = i.TaskNumber,

@@ -86,6 +86,7 @@ namespace TimeTracking.Pages.TimeTracks
                             {
                                 IssueNumber = i.TaskNumber,
                                 IssueDescription = i.TaskDescription,
+                                IssuePlatform = i.Platform,
                                 Estimate = i.Estimate,
                                 RemainingTime = i.Remaining,
                                 LoggedTimes = GetIssueSpentTimesByDays(targetUserId, i, SelectedDays)

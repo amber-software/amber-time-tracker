@@ -61,31 +61,8 @@ namespace TimeTracking.Pages.TimeTracks
             var selectedSprint = allSprints.FirstOrDefault(s => s.ID == selectedSprintId);
             SprintsSL = new SelectList(allSprints, "ID", "SprintNumber", selectedSprintId);
         }
-
-        private void PopulatePlatforms(Platform? selectedPlatform = null)
-        {
-            var platformType = typeof(Platform);
-            var values = Enum.GetValues(platformType);
-
-            var platforms = new List<object>();
-            foreach (var value in values)
-            {
-                var memInfo = platformType.GetMember(platformType.GetEnumName(value));
-                 var descriptionAttribute = memInfo[0]
-                    .GetCustomAttributes(typeof(DescriptionAttribute), false)
-                    .FirstOrDefault() as DescriptionAttribute;
-
-                if (descriptionAttribute != null)
-                {
-                    platforms.Add(new { ID = (int)value, PlatformName = value });
-                }
-            }
-
-            PlatformsSL = new SelectList(platforms,
-                        "ID", "PlatformName", selectedPlatform);
-        }
-
-        public async Task<PageResult> PopulateDropdownsAndShowPage(string userId, int? sprintId, int? selectedIssueId = null, Platform? platform = null)
+        
+        public async Task<PageResult> PopulateDropdownsAndShowPage(string userId, int? sprintId, int? selectedIssueId = null)
         {
             TargetSprintId = sprintId;
             TargetUserId = userId;
@@ -93,8 +70,6 @@ namespace TimeTracking.Pages.TimeTracks
             var allSprints = await sprintsService.GetAllSprints();            
             PopulateSprintsDropDownList(allSprints, sprintId);
             PopulateIssuesDropDownList(allSprints, sprintId, selectedIssueId);
-            
-            PopulatePlatforms(platform);
 
             return Page();
         }

@@ -205,7 +205,7 @@ namespace TimeTracking.Migrations
 
                     b.Property<int>("Estimate");
 
-                    b.Property<int>("Platform");
+                    b.Property<int?>("Platform");
 
                     b.Property<int>("Priority");
 
@@ -261,8 +261,6 @@ namespace TimeTracking.Migrations
 
                     b.Property<string>("OwnerID")
                         .IsRequired();
-
-                    b.Property<int>("Platform");
 
                     b.Property<float>("SpentHours");
 

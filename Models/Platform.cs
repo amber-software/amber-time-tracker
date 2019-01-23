@@ -1,13 +1,11 @@
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 public enum Platform
 {
-    [Description("Windows")]
+    [Display(Name = "Windows")]
     Windows,
 
-    [Description("MacOS")]
-    OSX, 
-
-    [Description("Windows and MacOS")]
-    WindowsAndOSX 
+    [Display(Name = "MacOS")]
+    OSX    
 }

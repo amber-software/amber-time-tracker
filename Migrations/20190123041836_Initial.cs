@@ -196,7 +196,7 @@ namespace TimeTracking.Migrations
                     Remaining = table.Column<int>(nullable: false),
                     Status = table.Column<int>(nullable: false),
                     Priority = table.Column<int>(nullable: false),
-                    Platform = table.Column<int>(nullable: false)
+                    Platform = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -219,8 +219,7 @@ namespace TimeTracking.Migrations
                     TrackingDate = table.Column<DateTime>(nullable: false),
                     IssueID = table.Column<int>(nullable: false),
                     OwnerID = table.Column<string>(nullable: false),
-                    Description = table.Column<string>(nullable: true),
-                    Platform = table.Column<int>(nullable: false)
+                    Description = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
