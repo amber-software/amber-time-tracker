@@ -40,7 +40,7 @@ namespace TimeTracking
             });
             
             services.AddDbContext<TimeTrackDataContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("TimeTrackDataContext")));
+                    options.UseNpgsql(Configuration.GetConnectionString("TimeTrackDataContext")));
 
             services.AddIdentity<IdentityUser, IdentityRole>()                
                 .AddEntityFrameworkStores<TimeTrackDataContext>()
