@@ -24,7 +24,7 @@
         <input asp-for="StopDate"type="Date" onchange="DoPostBackByDates();"/>
     </div>
 </form>
-<form name="selectPlatformForm" method="GET">    
+<!--form name="selectPlatformForm" method="GET">    
     <input type="hidden" name="id" value="@Model.TargetSprintId" />
     @{
         string startDateStr = Model.StartDate?.ToString("yyyy-MM-dd");
@@ -38,7 +38,7 @@
             <option value="">--All Platforms--</option>            
         </select>
     </div>
-</form>
+</form-->
 <table class="table">
     <thead>
         <tr>

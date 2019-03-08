@@ -13,10 +13,7 @@
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.TimeTracking[0].TotalSpentHours)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TimeTracking[0].TotalRemainingHours)
-            </th>
+            </th>            
             <th></th>
         </tr>
     </thead>
@@ -28,10 +25,7 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TotalSpentHours)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalRemainingHours)
-            </td>
+            </td>            
             <td>
                 @if(item.TimeTrackCount > 0)
                 {

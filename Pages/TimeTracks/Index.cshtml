@@ -40,9 +40,9 @@
             <th>
                 Description
             </th>
-            <th>
+            <!--th>
                 Platform
-            </th>
+            </th-->
             <th>
                 Estimation
             </th>
@@ -62,6 +62,7 @@
         </tr>
     </thead>
     <tbody>
+@{float totalHours = 0f;}
 @foreach (var item in Model.SpentTimes) {
         <tr>
             <td>
@@ -70,9 +71,9 @@
             <td>
                 @Html.DisplayFor(modelItem => item.IssueDescription)
             </td>
-            <td>
+            <!--td>
                 @Html.DisplayFor(modelItem => item.IssuePlatform)
-            </td>
+            </td-->
             <td>
                 @item.Estimate
             </td>
@@ -92,7 +93,8 @@
                 </td>
             }
             <td>
-                @totalTaskHours                
+                @totalTaskHours
+                @{totalHours += totalTaskHours;}
             </td>                       
         </tr>
 }
@@ -109,7 +111,9 @@
                     @Model.SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)
                 </td>
             }
-            <td></td>
+            <td>
+                @totalHours
+            </td>
         </tr>
     </tbody>
 </table>
