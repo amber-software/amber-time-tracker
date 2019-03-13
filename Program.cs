@@ -34,15 +34,8 @@ namespace TimeTracking
 
                 var testUserEmail = config["SeedUserEmail"];
                 var testUserPw = config["SeedUserPW"];
-                try
-                {                                        
-                    SeedData.Initialize(services, testUserEmail, testUserPw).Wait();
-                }
-                catch (Exception ex)
-                {
-                    var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "An error occurred seeding the DB.");
-                }
+                
+                SeedData.Initialize(services, testUserEmail, testUserPw).Wait();
             }
 
             host.Run();

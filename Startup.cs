@@ -17,11 +17,13 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using TimeTracking.Authorization;
 using TimeTracking.Services.Sprints;
 using TimeTracking.Services.Issues;
+using Microsoft.Extensions.Logging;
 
 namespace TimeTracking
 {
     public class Startup
     {
+        static readonly log4net.ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -88,8 +90,13 @@ namespace TimeTracking
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IApplicationLifetime applicationLifetime, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            applicationLifetime.ApplicationStarted.Register(ApplicationStarted);
+            applicationLifetime.ApplicationStopped.Register(ApplicationStopped);
+
+            loggerFactory.AddLog4Net();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -104,8 +111,18 @@ namespace TimeTracking
             app.UseStaticFiles();
             app.UseCookiePolicy();
             app.UseAuthentication();
-
+            
             app.UseMvc();
+        }
+
+        private void ApplicationStopped()
+        {
+            log.Warn("----====Application Stopped====-----");
+        }
+
+        private void ApplicationStarted()
+        {
+            log.Warn("----====Application Started====-----");
         }
     }
 }
