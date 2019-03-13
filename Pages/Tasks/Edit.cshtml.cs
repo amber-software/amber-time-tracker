@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using TimeTracking.Models;
 using TimeTracking.Services.Issues;
 using TimeTracking.Services.Sprints;
@@ -68,11 +69,11 @@ namespace TimeTracking.Pages.Tasks
                 }
                 catch (DbUpdateException ex)
                 {
-                    var sqlEx = ex?.InnerException as SqlException;
+                    var sqlEx = ex?.InnerException as PostgresException;
                     if (sqlEx != null)
-                        switch (sqlEx.Number)
+                        switch (sqlEx.SqlState)
                         {
-                           case 2601: //SqlServer Violation Of Unique Index
+                           case "23505": //SqlServer Violation Of Unique Index
                                 var error = $"Cannot modify Task with existed number '{Issue.TaskNumber}'";
                                 ModelState.AddModelError("Issue.TaskNumber", error);
 
