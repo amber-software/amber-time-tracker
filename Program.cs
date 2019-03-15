@@ -17,9 +17,13 @@ namespace TimeTracking
     {
         public static void Main(string[] args)
         {
+            var configuration = GetConfig();
+
+            var port = GetApplicationPort(configuration);
+
             var host = CreateWebHostBuilder(args)
-            .UseUrls("http://0.0.0.0:5000")
-            .Build();
+                            .UseUrls($"http://0.0.0.0:{port}")
+                            .Build();
 
             using (var scope = host.Services.CreateScope())
             {
@@ -28,13 +32,13 @@ namespace TimeTracking
                 context.Database.Migrate();
 
                 // requires using Microsoft.Extensions.Configuration;
-                var config = host.Services.GetRequiredService<IConfiguration>();
+                // var config = host.Services.GetRequiredService<IConfiguration>();
                 // Set password with the Secret Manager tool.
                 // dotnet user-secrets set SeedUserPW <pw>
 
-                var testUserEmail = config["SeedUserEmail"];
-                var testUserPw = config["SeedUserPW"];
-                
+                var testUserEmail = configuration["SeedUserEmail"];
+                var testUserPw = configuration["SeedUserPW"];
+                                
                 SeedData.Initialize(services, testUserEmail, testUserPw).Wait();
             }
 
@@ -44,5 +48,26 @@ namespace TimeTracking
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
+
+        private static IConfiguration GetConfig()
+        {
+            var builder = new ConfigurationBuilder()
+                        .SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json");
+
+            return builder.Build();
+        }
+
+        private static int GetApplicationPort(IConfiguration configuration)
+        {
+            var portStr = configuration["Port"];
+            if (string.IsNullOrEmpty(portStr))
+                throw new ApplicationException("Port is not specified in configuration");
+            var port = int.Parse(portStr);
+            if (port <= 0)
+                throw new ApplicationException("Port should be a positive number");
+
+            return port;
+        }
     }
 }
