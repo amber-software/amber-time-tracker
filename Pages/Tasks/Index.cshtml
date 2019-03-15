@@ -1,0 +1,84 @@
+@page
+@model TimeTracking.Pages.Tasks.IndexModel
+
+@{
+    ViewData["Title"] = "Tasks";
+}
+
+<h2>Tasks</h2>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].TaskNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].TaskDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Sprint.SprintNumber)
+            </th>
+            <!--th>
+                @Html.DisplayNameFor(model => model.Issue[0].Platform)
+            </th-->
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Estimate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Issue[0].Remaining)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.Issue) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TaskNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TaskDescription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sprint.SprintNumber)
+            </td>
+            <!--td>
+                @Html.DisplayFor(modelItem => item.Platform)
+            </td-->
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estimate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Remaining)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.ID">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.ID">Details</a>
+                @if ((await AuthorizationService.AuthorizeAsync(
+                                                    User, item,
+                                                    IssuesOperations.DeleteTasks)).Succeeded)
+                {
+                    <text> | </text>
+                    <a asp-page="./Delete" asp-route-id="@item.ID">Delete</a>                    
+                }                
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

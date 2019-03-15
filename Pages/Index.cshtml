@@ -1,0 +1,38 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<h2>Users time tracking</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeTracking[0].UserName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TimeTracking[0].TotalSpentHours)
+            </th>            
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.TimeTracking) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TotalSpentHours)
+            </td>            
+            <td>
+                @if(item.TimeTrackCount > 0)
+                {
+                    <a asp-page="/TimeTracks/Index" asp-route-id="@item.UserID">View</a>
+                }
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

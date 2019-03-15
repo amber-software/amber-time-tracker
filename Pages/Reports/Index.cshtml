@@ -1,0 +1,163 @@
+@page  "{handler?}"
+@model TimeTracking.Pages.Reports.IndexModel
+
+@{
+    ViewData["Title"] = "Report";
+}
+
+<h2>Report</h2>
+<form name="selectSprintForm" method="GET">    
+    <input type="hidden" name="platform" value="@Model.TargetPlatform" />
+    <div class="form-group">
+        <label class="control-label">Sprint</label>
+        <select id="sprintId" name="id" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
+            <option>--All Sprints--</option>            
+        </select>
+    </div>
+</form>
+<form name="selectDatesForm" method="GET">
+    <input type="hidden" name="platform" value="@Model.TargetPlatform" />
+    <div class="form-group">
+        <label asp-for="StartDate"></label>
+        <input asp-for="StartDate" type="Date" onchange="DoPostBackByDates();"/>
+        <label asp-for="StopDate"></label>
+        <input asp-for="StopDate"type="Date" onchange="DoPostBackByDates();"/>
+    </div>
+</form>
+<!--form name="selectPlatformForm" method="GET">    
+    <input type="hidden" name="id" value="@Model.TargetSprintId" />
+    @{
+        string startDateStr = Model.StartDate?.ToString("yyyy-MM-dd");
+        string stopDateStr = Model.StopDate?.ToString("yyyy-MM-dd");
+    }
+    <input type="hidden" name="startDate" value="@startDateStr" />
+    <input type="hidden" name="stopDate" value="@stopDateStr" />
+    <div class="form-group">
+        <label class="control-label">Platform</label>
+        <select id="platformId" name="platform" asp-items="@Model.PlatformsSL" onchange="DoPostBackByPlatform();">
+            <option value="">--All Platforms--</option>            
+        </select>
+    </div>
+</form-->
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Task Number
+            </th>
+            <th>
+                Description
+            </th>
+            <th>
+                Priority
+            </th>
+            <th>
+                Estimation
+            </th>
+            <th>
+                RemainingTime
+            </th>       
+            <th>
+                Status
+            </th>     
+            @foreach (var day in Model.ReportDays)
+            {
+                <th>
+                    @day.ToString("ddd")
+                    @day.Date.Day                                         
+                </th>    
+            }
+            <th>
+                Total
+            </th>                        
+        </tr>
+    </thead>
+    <tbody>
+@{float totalHours = 0f;}
+@foreach (var item in Model.SpentTimes) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IssueNumber)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IssueDescription)
+            </td>
+            <td>
+                @item.Priority
+            </td>
+            <td>
+                @item.Estimate
+            </td>
+            <td>
+                @item.RemainingTime
+            </td>
+            <td>
+                @item.Status
+            </td>
+            @{float totalTaskHours = 0f;}
+            @foreach (var loggedTime in item.LoggedTimes)
+            {                
+                <td>
+                    @if (loggedTime.TimeTrackID.HasValue && loggedTime.Hours > 0)
+                    {
+                        totalTaskHours += loggedTime.Hours ?? 0;
+
+                        @loggedTime.Hours
+                    }
+                </td>
+            }
+            <td>
+                @totalTaskHours
+
+                @{totalHours += totalTaskHours;}
+            </td>                       
+        </tr>
+}
+        <tr>
+            <td></td>
+            <td></td>            
+            <td>
+                Total
+            </td>
+            <td> 
+                @Model.SpentTimes.Sum(t => t.Estimate)
+            </td>
+            <td>           
+                @Model.SpentTimes.Sum(t => t.RemainingTime)
+            </td>
+            <td>                
+            </td>
+            @for (var i = 0; i < Model.ReportDays.Count; i++)
+            {
+                <td>
+                    @Model.SpentTimes.Sum(t => t.LoggedTimes[i].Hours ?? 0)
+                </td>
+            }
+            <td>
+                @totalHours
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<a asp-page-handler="CSVReport"    
+   asp-route-id="@Model.SprintsSL.SelectedValue"
+   asp-route-startDate="@Model.StartDate"
+   asp-route-stopDate="@Model.StopDate"
+   asp-route-platform="@Model.TargetPlatform">
+   Download Report
+</a>
+
+<script>
+    function DoPostBackBySprint() {
+        document.selectSprintForm.submit();
+    }
+
+    function DoPostBackByDates() {
+        document.selectDatesForm.submit();
+    }
+
+    function DoPostBackByPlatform() {
+        document.selectPlatformForm.submit();
+    }    
+</script>

@@ -1,0 +1,9 @@
+@using TimeTracking
+@namespace TimeTracking.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@using TimeTracking.Authorization;
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Identity
+@using TimeTracking.Models
+@inject IAuthorizationService AuthorizationService
+@inject UserManager<IdentityUser> UserManager
