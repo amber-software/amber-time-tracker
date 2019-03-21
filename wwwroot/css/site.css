@@ -35,3 +35,9 @@ body {
         display: none;
     }
 }
+
+.table a
+{
+    display:block;
+    text-decoration:none;
+}
