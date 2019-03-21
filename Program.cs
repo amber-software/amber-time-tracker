@@ -18,15 +18,12 @@ namespace TimeTracking
         public static void Main(string[] args)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-            var isDevelopment = environment == EnvironmentName.Development;
 
-            IConfiguration configuration = null;
             int port = 5000;
+            IConfiguration configuration = GetConfig(environment);
 
-            if (!isDevelopment)
+            if (environment != EnvironmentName.Development)
             {
-                configuration = GetConfig();
-
                 port = GetApplicationPort(configuration);
             }
 
@@ -41,8 +38,8 @@ namespace TimeTracking
                 context.Database.Migrate();
                 
                 // requires using Microsoft.Extensions.Configuration;
-                if (isDevelopment)
-                    configuration = host.Services.GetRequiredService<IConfiguration>();
+                // if (isDevelopment)
+                //    configuration = host.Services.GetRequiredService<IConfiguration>();
 
                 // Set password with the Secret Manager tool.
                 // dotnet user-secrets set SeedUserPW <pw>
@@ -60,11 +57,23 @@ namespace TimeTracking
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
-        private static IConfiguration GetConfig()
+        private static IConfiguration GetConfig(string environment)
         {
-            var builder = new ConfigurationBuilder()
-                        .SetBasePath(Directory.GetCurrentDirectory())
-                        .AddJsonFile("appsettings.json");
+            var builder = new ConfigurationBuilder();
+
+            if (environment != EnvironmentName.Development)
+            {
+                environment = "Production";
+            }
+
+            if (environment == EnvironmentName.Development)
+            {
+                builder.AddUserSecrets<Startup>();
+            }
+
+            builder.SetBasePath(Directory.GetCurrentDirectory())
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+	                    .AddJsonFile($"appsettings.{environment}.json", optional: true);
 
             return builder.Build();
         }
@@ -72,9 +81,12 @@ namespace TimeTracking
         private static int GetApplicationPort(IConfiguration configuration)
         {
             var portStr = configuration["Port"];
+
             if (string.IsNullOrEmpty(portStr))
                 throw new ApplicationException("Port is not specified in configuration");
+
             var port = int.Parse(portStr);
+            
             if (port <= 0)
                 throw new ApplicationException("Port should be a positive number");
 
