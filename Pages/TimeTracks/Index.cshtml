@@ -75,10 +75,14 @@
                 @Html.DisplayFor(modelItem => item.IssuePlatform)
             </td-->
             <td>
-                @item.Estimate
+                <a asp-page="/Tasks/Edit" asp-route-id="@item.IssueID">
+                    @item.Estimate
+                </a>
             </td>
             <td>
-                @item.RemainingTime
+                <a asp-page="/Tasks/Edit" asp-route-id="@item.IssueID">
+                    @item.RemainingTime
+                </a>
             </td>                       
             @{float totalTaskHours = 0f;}
             @foreach (var loggedTime in item.LoggedTimes)
@@ -89,6 +93,10 @@
                         totalTaskHours += loggedTime.Hours ?? 0;
 
                         <a asp-page="./Edit" asp-route-timeTrackId="@loggedTime.TimeTrackID">@loggedTime.Hours</a>                        
+                    }
+                    else
+                    {
+                        <a asp-page="./Create" asp-route-targetDate="@loggedTime.TrackDate">&nbsp;</a>                        
                     }
                 </td>
             }

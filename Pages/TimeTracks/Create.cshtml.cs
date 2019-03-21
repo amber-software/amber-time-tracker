@@ -29,7 +29,7 @@ namespace TimeTracking.Pages.TimeTracks
         [BindProperty]
         public TimeTrack TimeTrack { get; set; }        
         
-        public async Task<IActionResult> OnGet(string id, int? sprintId)
+        public async Task<IActionResult> OnGet(string id, int? sprintId, DateTime? targetDate)
         {
             // Validation
             if (!string.IsNullOrEmpty(id) &&
@@ -38,6 +38,16 @@ namespace TimeTracking.Pages.TimeTracks
                 return new ChallengeResult();
 
             var sprint = await sprintsService.GetTargetSprint(sprintId);
+            
+            TimeTrack = new TimeTrack();
+            if (targetDate.HasValue)
+            {                
+                TimeTrack.TrackingDate = targetDate.Value;          // If log date is passed, set logging date
+            }
+            else
+            {
+                TimeTrack.TrackingDate = DateTime.Now.AddDays(-1);  // Log time fow tomorrow by default
+            }
 
             // Set data for creation
             return await PopulateDropdownsAndShowPage(id, sprintId);            

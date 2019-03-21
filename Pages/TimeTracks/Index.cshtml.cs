@@ -84,6 +84,7 @@ namespace TimeTracking.Pages.TimeTracks
                                                               t.TrackingDate <= StopDate.Value))
                             .Select(i => new IssueTrack()
                             {
+                                IssueID = i.ID,
                                 IssueNumber = i.TaskNumber,
                                 IssueDescription = i.TaskDescription,
                                 IssuePlatform = i.Platform,
@@ -106,7 +107,8 @@ namespace TimeTracking.Pages.TimeTracks
                 spentTimes.Add(new TimeTrackLogTime()
                                     {
                                         TimeTrackID = timeTrack?.ID,
-                                        Hours = timeTrack?.SpentHours 
+                                        Hours = timeTrack?.SpentHours,
+                                        TrackDate = date
                                     });
             }
 

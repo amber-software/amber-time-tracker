@@ -215,6 +215,7 @@ namespace TimeTracking.Pages.Reports
             SpentTimes = filteredIssues
                             .Select(i => new IssueTrack()
                             {
+                                IssueID = i.ID,
                                 IssueNumber = i.TaskNumber,
                                 IssueDescription = i.TaskDescription,
                                 Estimate = i.Estimate,
@@ -236,7 +237,8 @@ namespace TimeTracking.Pages.Reports
                 spentTimes.Add(new TimeTrackLogTime()
                                     {
                                         TimeTrackID = timeTrack?.ID,
-                                        Hours = timeTrack?.SpentHours 
+                                        Hours = timeTrack?.SpentHours,
+                                        TrackDate = date
                                     });
             }
 

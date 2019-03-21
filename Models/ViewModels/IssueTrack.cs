@@ -5,7 +5,9 @@ using System.ComponentModel.DataAnnotations;
 namespace TimeTracking.Models
 {
     public class IssueTrack
-    {        
+    {
+        public int IssueID {get; set; }
+        
         public string IssueNumber { get; set; }
 
         public string IssueDescription { get; set; }
@@ -25,6 +27,8 @@ namespace TimeTracking.Models
 
     public class TimeTrackLogTime
     {
+        public DateTime TrackDate;
+
         public int? TimeTrackID { get; set; }
 
         public float? Hours { get; set; }
