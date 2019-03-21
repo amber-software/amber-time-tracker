@@ -17,9 +17,18 @@ namespace TimeTracking
     {
         public static void Main(string[] args)
         {
-            var configuration = GetConfig();
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            var isDevelopment = environment == EnvironmentName.Development;
 
-            var port = GetApplicationPort(configuration);
+            IConfiguration configuration = null;
+            int port = 5000;
+
+            if (!isDevelopment)
+            {
+                configuration = GetConfig();
+
+                port = GetApplicationPort(configuration);
+            }
 
             var host = CreateWebHostBuilder(args)
                             .UseUrls($"http://0.0.0.0:{port}")
@@ -30,9 +39,11 @@ namespace TimeTracking
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<TimeTrackDataContext>();
                 context.Database.Migrate();
-
+                
                 // requires using Microsoft.Extensions.Configuration;
-                // var config = host.Services.GetRequiredService<IConfiguration>();
+                if (isDevelopment)
+                    configuration = host.Services.GetRequiredService<IConfiguration>();
+
                 // Set password with the Secret Manager tool.
                 // dotnet user-secrets set SeedUserPW <pw>
 
