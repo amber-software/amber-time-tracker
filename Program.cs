@@ -18,8 +18,10 @@ namespace TimeTracking
         public static void Main(string[] args)
         {
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            if (string.IsNullOrEmpty(environment))
+                environment = "Production";
 
-            int port = 5000;
+            int port = 5000; // Default port value for development mode
             IConfiguration configuration = GetConfig(environment);
 
             if (environment != EnvironmentName.Development)
@@ -37,12 +39,9 @@ namespace TimeTracking
                 var context = services.GetRequiredService<TimeTrackDataContext>();
                 context.Database.Migrate();
                 
-                // requires using Microsoft.Extensions.Configuration;
-                // if (isDevelopment)
-                //    configuration = host.Services.GetRequiredService<IConfiguration>();
-
-                // Set password with the Secret Manager tool.
-                // dotnet user-secrets set SeedUserPW <pw>
+                // Set password with the Secret Manager tool in Development environment and in appsettings.Production.json for Production environment.
+                // dotnet user-secrets set "SeedUserEmail" "admin@admin.com"
+                // dotnet user-secrets set "SeedUserPW" <pw>
 
                 var testUserEmail = configuration["SeedUserEmail"];
                 var testUserPw = configuration["SeedUserPW"];
@@ -57,23 +56,18 @@ namespace TimeTracking
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>();
 
-        private static IConfiguration GetConfig(string environment)
+        private static IConfiguration GetConfig(string environmentName)
         {
             var builder = new ConfigurationBuilder();
 
-            if (environment != EnvironmentName.Development)
-            {
-                environment = "Production";
-            }
-
-            if (environment == EnvironmentName.Development)
+            if (environmentName == EnvironmentName.Development)
             {
                 builder.AddUserSecrets<Startup>();
             }
 
             builder.SetBasePath(Directory.GetCurrentDirectory())
                         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-	                    .AddJsonFile($"appsettings.{environment}.json", optional: true);
+	                    .AddJsonFile($"appsettings.{environmentName}.json", optional: true);
 
             return builder.Build();
         }
