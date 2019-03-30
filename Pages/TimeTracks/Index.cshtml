@@ -13,14 +13,8 @@
     )</span>
 }
 </h2>
-<form name="sprintForm" method="get">    
+<form name="sprintForm" method="get">
     <input type="hidden" name="id" value="@Model.TargetUserId" />
-    @{ 
-        var startDate = Model.StartDate?.ToString("yyyy-MM-dd"); 
-        var stopDate = Model.StopDate?.ToString("yyyy-MM-dd");
-    }
-    <input type="hidden" name="startDate" value="@startDate" />
-    <input type="hidden" name="stopDate" value="@stopDate" />
     <div class="form-group">
         <label class="control-label">Sprint</label>
         <select id="sprintId" name="sprintId" asp-items="@Model.SprintsSL" onchange="DoPostBackBySprint();">
